@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Prode Mundial 2026 - Vaquita -</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, doc, setDoc, getDoc, collection, getDocs, deleteDoc }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  const firebaseConfig = {
+    apiKey: "AIzaSyBRZz1EfrHAsjMxsgr_d7LIBJoK688OQB4",
+    authDomain: "prode-vaquita-2026.firebaseapp.com",
+    projectId: "prode-vaquita-2026",
+    storageBucket: "prode-vaquita-2026.firebasestorage.app",
+    messagingSenderId: "1075416523474",
+    appId: "1:1075416523474:web:e1954c26cd41986eb5430b"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  window._db = db;
+  window._fb = { doc, setDoc, getDoc, collection, getDocs, deleteDoc };
+  window._fbReady = true;
+  document.dispatchEvent(new Event("firebase-ready"));
+</script>
+<style>
+:root {
+  --negro:#0a0a0a;--verde:#00c853;--verde2:#00e676;--oro:#ffd600;--rojo:#f44336;--naranja:#ff6d00;
+  --gris1:#1a1a1a;--gris2:#252525;--gris3:#333;--gris4:#666;--blanco:#f0f0f0;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--negro);color:var(--blanco);font-family:'Barlow',sans-serif;padding:24px;}
+h1{font-family:'Bebas Neue',cursive;font-size:2.5rem;color:var(--verde);letter-spacing:3px;margin-bottom:4px;}
+.sub{font-family:'Barlow Condensed',sans-serif;font-size:0.75rem;letter-spacing:3px;color:var(--gris4);text-transform:uppercase;margin-bottom:32px;}
+#admin-login{max-width:360px;margin:60px auto;}
+.card{background:var(--gris1);border:1px solid var(--gris3);border-radius:10px;padding:32px;}
+.card h2{font-family:'Bebas Neue',cursive;font-size:1.8rem;color:var(--verde);margin-bottom:20px;}
+input[type=text],input[type=password],input[type=number]{width:100%;background:var(--gris2);border:1px solid var(--gris3);border-radius:6px;padding:10px 14px;color:var(--blanco);font-family:'Barlow',sans-serif;font-size:0.95rem;margin-bottom:10px;outline:none;}
+input:focus{border-color:var(--verde);}
+.btn{background:var(--verde);color:var(--negro);border:none;border-radius:6px;padding:10px 20px;font-family:'Bebas Neue',cursive;font-size:1.1rem;letter-spacing:1px;cursor:pointer;transition:background .2s;}
+.btn:hover{background:var(--verde2);}
+.btn.danger{background:var(--rojo);color:#fff;}.btn.danger:hover{background:#e53935;}
+.btn.warning{background:var(--naranja);color:#fff;}.btn.warning:hover{background:#f4511e;}
+.btn.secondary{background:var(--gris3);color:var(--blanco);}
+.btn:disabled{background:var(--gris3);color:var(--gris4);cursor:not-allowed;}
+.err{color:var(--rojo);font-size:0.85rem;margin-top:8px;font-family:'Barlow Condensed',sans-serif;}
+#admin-app{display:none;}
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--gris3);margin-bottom:32px;flex-wrap:wrap;}
+.tab-btn{background:none;border:none;border-bottom:3px solid transparent;padding:12px 18px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.85rem;letter-spacing:1px;text-transform:uppercase;color:var(--gris4);cursor:pointer;transition:all .2s;}
+.tab-btn.active{color:var(--verde);border-bottom-color:var(--verde);}
+.tab-panel{display:none;}.tab-panel.active{display:block;}
+
+/* RESULTADOS */
+.res-grid{display:grid;gap:8px;}
+.res-row{background:var(--gris1);border:1px solid var(--gris3);border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.res-equipos{flex:1;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.95rem;display:flex;align-items:center;gap:8px;}
+.res-inputs{display:flex;align-items:center;gap:6px;}
+.g-inp{width:50px;height:40px;background:var(--gris2);border:1px solid var(--gris3);border-radius:6px;color:var(--blanco);font-family:'Bebas Neue',cursive;font-size:1.3rem;text-align:center;outline:none;-moz-appearance:textfield;}
+.g-inp::-webkit-outer-spin-button,.g-inp::-webkit-inner-spin-button{-webkit-appearance:none;}
+.g-inp:focus{border-color:var(--verde);}.g-inp.ok{border-color:var(--verde);background:#1f0505;}
+.grupo-title{font-family:'Bebas Neue',cursive;font-size:1.5rem;color:var(--verde);margin:24px 0 8px;letter-spacing:2px;}
+.save-all-bar{position:sticky;bottom:0;background:var(--negro);border-top:1px solid var(--gris3);padding:16px 0;text-align:center;margin-top:32px;}
+
+/* USUARIOS */
+.users-table{width:100%;border-collapse:collapse;margin-top:16px;}
+.users-table th{font-family:'Barlow Condensed',sans-serif;font-size:0.75rem;letter-spacing:2px;text-transform:uppercase;color:var(--gris4);padding:10px 12px;text-align:left;border-bottom:1px solid var(--gris3);}
+.users-table td{padding:10px 12px;border-bottom:1px solid var(--gris2);font-family:'Barlow Condensed',sans-serif;font-size:0.95rem;}
+.badge-activo{background:#2a0505;color:var(--verde);border-radius:4px;padding:2px 8px;font-size:0.75rem;}
+.badge-inactivo{background:#2a0a0a;color:var(--rojo);border-radius:4px;padding:2px 8px;font-size:0.75rem;}
+.inline-form{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:20px;}
+.field{display:flex;flex-direction:column;gap:4px;}
+.field label{font-family:'Barlow Condensed',sans-serif;font-size:0.75rem;letter-spacing:1px;text-transform:uppercase;color:var(--gris4);}
+.field input{margin-bottom:0;}
+
+/* CONFIG */
+.config-card{background:var(--gris1);border:1px solid var(--gris3);border-radius:12px;padding:28px 32px;max-width:500px;}
+.config-card h3{font-family:'Bebas Neue',cursive;font-size:1.6rem;letter-spacing:2px;margin-bottom:8px;}
+.config-card p{font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;color:var(--gris4);margin-bottom:24px;line-height:1.5;}
+.estado-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:6px;font-family:'Bebas Neue',cursive;font-size:1.1rem;letter-spacing:1px;margin-bottom:20px;}
+.estado-badge.abierto{background:#2a0505;border:1px solid var(--verde);color:var(--verde);}
+.estado-badge.cerrado{background:#2a0a0a;border:1px solid var(--rojo);color:var(--rojo);}
+.dot{width:8px;height:8px;border-radius:50%;}
+.dot.verde{background:var(--verde);box-shadow:0 0 6px var(--verde);}
+.dot.rojo{background:var(--rojo);}
+
+/* EXPORTAR */
+.export-card{background:var(--gris1);border:1px solid var(--gris3);border-radius:12px;padding:28px 32px;max-width:600px;}
+.export-card h3{font-family:'Bebas Neue',cursive;font-size:1.6rem;letter-spacing:2px;color:var(--oro);margin-bottom:8px;}
+.export-card p{font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;color:var(--gris4);margin-bottom:20px;line-height:1.5;}
+.export-stats{display:flex;gap:24px;margin-bottom:24px;flex-wrap:wrap;}
+.export-stat .num{font-family:'Bebas Neue',cursive;font-size:2.2rem;color:var(--verde);line-height:1;}
+.export-stat .lbl{font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--gris4);}
+.btn-export{background:var(--oro);color:var(--negro);border:none;border-radius:8px;padding:14px 28px;font-family:'Bebas Neue',cursive;font-size:1.2rem;letter-spacing:2px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:10px;}
+.btn-export:hover{background:#ffe033;}
+.btn-export:disabled{background:var(--gris3);color:var(--gris4);cursor:not-allowed;}
+.link-publico{background:var(--gris2);border:1px solid var(--gris3);border-radius:6px;padding:12px 16px;font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;color:var(--verde);word-break:break-all;margin-bottom:10px;}
+
+#toast{position:fixed;bottom:20px;right:20px;background:var(--gris1);border:1px solid var(--verde);border-radius:8px;padding:12px 20px;font-family:'Barlow Condensed',sans-serif;font-weight:600;color:var(--verde);z-index:999;transform:translateY(60px);opacity:0;transition:all .3s;}
+#toast.show{transform:translateY(0);opacity:1;}
+</style>
+</head>
+<body>
+
+<div id="admin-login">
+  <div class="card">
+    <h2>⚙ Admin — Prode 2026</h2>
+    <input type="text" id="a-user" placeholder="Usuario admin">
+    <input type="password" id="a-pass" placeholder="Contraseña">
+    <button class="btn" id="btn-admin-login">INGRESAR</button>
+    <div class="err" id="a-err"></div>
+  </div>
+</div>
+
+<div id="admin-app">
+  <h1>PRODE 2026</h1>
+  <div class="sub">Panel de Administración</div>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="resultados">Cargar Resultados</button>
+    <button class="tab-btn" data-tab="usuarios">Usuarios</button>
+    <button class="tab-btn" data-tab="exportar">📥 Exportar</button>
+    <button class="tab-btn" data-tab="config">⚙ Config</button>
+  </div>
+
+  <!-- TAB: RESULTADOS -->
+  <div class="tab-panel active" id="panel-resultados">
+    <p style="font-family:'Barlow Condensed',sans-serif;color:var(--gris4);margin-bottom:20px;font-size:0.9rem;">
+      Ingresá los resultados reales de cada partido. Al guardar, se recalcula el ranking automáticamente.
+    </p>
+    <div id="res-grid-cont"><div style="color:var(--gris4)">Cargando...</div></div>
+    <div class="save-all-bar">
+      <button class="btn" id="btn-guardar-res">GUARDAR TODOS LOS RESULTADOS</button>
+      <div id="res-status" style="font-family:'Barlow Condensed',sans-serif;color:var(--verde);font-size:0.85rem;margin-top:8px;"></div>
+    </div>
+  </div>
+
+  <!-- TAB: USUARIOS -->
+  <div class="tab-panel" id="panel-usuarios">
+    <h3 style="font-family:'Bebas Neue',cursive;font-size:1.5rem;margin-bottom:16px;color:var(--verde)">AGREGAR USUARIO</h3>
+    <div class="inline-form">
+      <div class="field"><label>CUIL / Usuario</label><input type="text" id="new-uid" placeholder="20-12345678-9"></div>
+      <div class="field"><label>Nombre</label><input type="text" id="new-nombre" placeholder="Juan Pérez"></div>
+      <div class="field"><label>PIN numérico</label><input type="number" id="new-pin" placeholder="1234"></div>
+      <div class="field" style="justify-content:flex-end"><button class="btn" id="btn-add-user">AGREGAR</button></div>
+    </div>
+    <div id="add-user-err" class="err" style="margin-bottom:12px;"></div>
+    <h3 style="font-family:'Bebas Neue',cursive;font-size:1.5rem;margin-bottom:12px;color:var(--verde)">USUARIOS REGISTRADOS</h3>
+    <div id="users-list"><div style="color:var(--gris4)">Cargando...</div></div>
+  </div>
+
+  <!-- TAB: EXPORTAR -->
+  <div class="tab-panel" id="panel-exportar">
+    <div class="export-card">
+      <h3>EXPORTAR PREDICCIONES</h3>
+      <p>Descargá un Excel con todas las predicciones de todos los jugadores, los resultados reales y los puntos obtenidos por partido.</p>
+      <div class="export-stats">
+        <div class="export-stat"><div class="num" id="exp-jugadores">–</div><div class="lbl">Jugadores</div></div>
+        <div class="export-stat"><div class="num" id="exp-partidos">48</div><div class="lbl">Partidos</div></div>
+        <div class="export-stat"><div class="num" id="exp-resultados">–</div><div class="lbl">Resultados cargados</div></div>
+      </div>
+      <button class="btn-export" id="btn-exportar-excel"><span>⬇</span> DESCARGAR EXCEL</button>
+      <div id="export-status" style="font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;color:var(--verde);margin-top:14px;min-height:20px;"></div>
+    </div>
+    <div style="margin-top:20px;background:var(--gris1);border:1px solid var(--gris3);border-radius:12px;padding:24px;max-width:600px;">
+      <h3 style="font-family:'Bebas Neue',cursive;font-size:1.3rem;color:var(--blanco);letter-spacing:2px;margin-bottom:8px;">LISTADO DE PREDICCIONES</h3>
+      <p style="font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;color:var(--gris4);margin-bottom:16px;line-height:1.5;">
+        Página pública donde todos los participantes pueden ver las predicciones de todos.
+      </p>
+      <div class="link-publico">https://prodemundial2026ba-droid.github.io/prode/predicciones.html</div>
+      <button class="btn secondary" style="padding:8px 16px;font-size:0.85rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;"
+        onclick="navigator.clipboard.writeText('https://prodemundial2026ba-droid.github.io/prode/predicciones.html');toast('✓ Link copiado')">
+        Copiar link
+      </button>
+    </div>
+  </div>
+
+  <!-- TAB: CONFIG -->
+  <div class="tab-panel" id="panel-config">
+    <div class="config-card">
+      <h3 style="color:var(--oro)">ESTADO DE PREDICCIONES</h3>
+      <p>Controlá si los jugadores pueden cargar o modificar sus predicciones. Una vez cerrado, los inputs quedan bloqueados para todos.</p>
+      <div id="estado-badge-cont"><div style="color:var(--gris4);font-family:'Barlow Condensed',sans-serif">Cargando...</div></div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <button class="btn" id="btn-abrir-pred">🟢 ABRIR PREDICCIONES</button>
+        <button class="btn danger" id="btn-cerrar-pred">🔴 CERRAR PREDICCIONES</button>
+      </div>
+      <div id="config-status" style="font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;color:var(--verde);margin-top:14px;"></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const GRUPOS={A:["México","Corea del Sur","Sudáfrica","Rep. Checa"],B:["Canadá","Suiza","Qatar","Bosnia y Herzegovina"],C:["Brasil","Marruecos","Escocia","Haití"],D:["EE.UU.","Paraguay","Australia","Turquía"],E:["Alemania","Ecuador","Costa de Marfil","Curazao"],F:["Países Bajos","Japón","Túnez","Ucrania"],G:["Bélgica","Irán","Egipto","Nueva Zelanda"],H:["España","Uruguay","Arabia Saudí","Cabo Verde"],I:["Francia","Senegal","Noruega","Irak"],J:["Argentina","Austria","Argelia","Jordania"],K:["Portugal","Colombia","Uzbekistán","RD Congo"],L:["Inglaterra","Croacia","Panamá","Ghana"]};
+const BANDERAS={"México":"🇲🇽","Corea del Sur":"🇰🇷","Sudáfrica":"🇿🇦","Rep. Checa":"🇨🇿","Canadá":"🇨🇦","Suiza":"🇨🇭","Qatar":"🇶🇦","Bosnia y Herzegovina":"🇧🇦","Brasil":"🇧🇷","Marruecos":"🇲🇦","Escocia":"🏴󠁧󠁢󠁳󠁣󠁴󠁿","Haití":"🇭🇹","EE.UU.":"🇺🇸","Paraguay":"🇵🇾","Australia":"🇦🇺","Turquía":"🇹🇷","Alemania":"🇩🇪","Ecuador":"🇪🇨","Costa de Marfil":"🇨🇮","Curazao":"🇨🇼","Países Bajos":"🇳🇱","Japón":"🇯🇵","Túnez":"🇹🇳","Ucrania":"🇺🇦","Bélgica":"🇧🇪","Irán":"🇮🇷","Egipto":"🇪🇬","Nueva Zelanda":"🇳🇿","España":"🇪🇸","Uruguay":"🇺🇾","Arabia Saudí":"🇸🇦","Cabo Verde":"🇨🇻","Francia":"🇫🇷","Senegal":"🇸🇳","Noruega":"🇳🇴","Irak":"🇮🇶","Argentina":"🇦🇷","Austria":"🇦🇹","Argelia":"🇩🇿","Jordania":"🇯🇴","Portugal":"🇵🇹","Colombia":"🇨🇴","Uzbekistán":"🇺🇿","RD Congo":"🇨🇩","Inglaterra":"🏴󠁧󠁢󠁥󠁮󠁧󠁿","Croacia":"🇭🇷","Panamá":"🇵🇦","Ghana":"🇬🇭"};
+function genFixture(){const f=[];for(const[g,eq]of Object.entries(GRUPOS)){const p=[[0,1],[2,3],[0,2],[1,3],[0,3],[1,2]],fe=[1,1,2,2,3,3];p.forEach(([i,j],idx)=>f.push({id:`${g}${idx+1}`,grupo:g,fecha:fe[idx],local:eq[i],visitante:eq[j]}));}return f;}
+const FIXTURE=genFixture();
+function calcPts(pred,real){if(!real||real.gl===null||real.gv===null)return null;if(!pred||pred.gl===null||pred.gv===null)return 0;if(pred.gl===real.gl&&pred.gv===real.gv)return 5;const s=v=>v>0?1:v<0?-1:0;if(s(pred.gl-pred.gv)===s(real.gl-real.gv))return 3;return 0;}
+</script>
+
+<script type="module">
+const ADMIN_USER = "admin";
+const ADMIN_PASS = "admin2026";
+let resultadosCache = {};
+
+// ---- HASH PIN ----
+async function hashPin(pin) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(pin);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2500);
+}
+window.toast = toast;
+
+const waitFB = (fn) => { if(window._fbReady) fn(); else document.addEventListener("firebase-ready", fn, {once:true}); };
+
+document.getElementById("btn-admin-login").addEventListener("click", () => {
+  const u = document.getElementById("a-user").value.trim();
+  const p = document.getElementById("a-pass").value.trim();
+  if(u === ADMIN_USER && p === ADMIN_PASS) {
+    document.getElementById("admin-login").style.display = "none";
+    document.getElementById("admin-app").style.display = "block";
+    waitFB(iniciarAdmin);
+  } else { document.getElementById("a-err").textContent = "Credenciales incorrectas."; }
+});
+["a-user","a-pass"].forEach(id => {
+  document.getElementById(id).addEventListener("keydown", e => { if(e.key === "Enter") document.getElementById("btn-admin-login").click(); });
+});
+
+async function iniciarAdmin() {
+  await cargarResultados();
+  renderGridResultados();
+  await cargarUsuarios();
+  await cargarEstadoPredicciones();
+  await cargarStatsExport();
+  document.getElementById("btn-guardar-res").addEventListener("click", guardarResultados);
+  document.getElementById("btn-abrir-pred").addEventListener("click", () => setEstadoPredicciones(true));
+  document.getElementById("btn-cerrar-pred").addEventListener("click", () => setEstadoPredicciones(false));
+  document.getElementById("btn-exportar-excel").addEventListener("click", exportarExcel);
+}
+
+// ---- RESULTADOS ----
+async function cargarResultados() {
+  const {doc, getDoc} = window._fb;
+  const snap = await getDoc(doc(window._db, "resultados", "oficial"));
+  resultadosCache = snap.exists() ? snap.data() : {};
+}
+
+function renderGridResultados() {
+  const cont = document.getElementById("res-grid-cont");
+  let html = "";
+  const grupos = {};
+  FIXTURE.forEach(p => { if(!grupos[p.grupo]) grupos[p.grupo] = []; grupos[p.grupo].push(p); });
+  for(const [letra, partidos] of Object.entries(grupos)) {
+    html += `<div class="grupo-title">GRUPO ${letra}</div><div class="res-grid">`;
+    partidos.forEach(p => {
+      const r = resultadosCache[p.id] || {gl:null, gv:null};
+      const glv = r.gl !== null ? r.gl : "";
+      const gvv = r.gv !== null ? r.gv : "";
+      const ok = r.gl !== null ? "ok" : "";
+      html += `<div class="res-row">
+        <div class="res-equipos">
+          <span>${BANDERAS[p.local]||''} ${p.local}</span>
+          <span style="color:var(--gris4)">vs</span>
+          <span>${BANDERAS[p.visitante]||''} ${p.visitante}</span>
+        </div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.75rem;color:var(--gris4);margin-right:4px;">F${p.fecha}</div>
+        <div class="res-inputs">
+          <input type="number" class="g-inp ${ok}" min="0" max="20" data-pid="${p.id}" data-lado="gl" value="${glv}" placeholder="–">
+          <span style="font-family:'Bebas Neue',cursive;color:var(--gris4);font-size:1.2rem">:</span>
+          <input type="number" class="g-inp ${ok}" min="0" max="20" data-pid="${p.id}" data-lado="gv" value="${gvv}" placeholder="–">
+        </div>
+      </div>`;
+    });
+    html += "</div>";
+  }
+  cont.innerHTML = html;
+  cont.querySelectorAll(".g-inp").forEach(inp => {
+    inp.addEventListener("input", () => {
+      const pid = inp.dataset.pid, lado = inp.dataset.lado;
+      const val = inp.value === "" ? null : parseInt(inp.value);
+      if(!resultadosCache[pid]) resultadosCache[pid] = {gl:null, gv:null};
+      resultadosCache[pid][lado] = val;
+      const row = inp.closest(".res-row");
+      const r = resultadosCache[pid];
+      row.querySelectorAll(".g-inp").forEach(i => { i.classList.toggle("ok", r.gl !== null && r.gv !== null); });
+    });
+  });
+}
+
+async function guardarResultados() {
+  const btn = document.getElementById("btn-guardar-res");
+  const status = document.getElementById("res-status");
+  btn.disabled = true; btn.textContent = "GUARDANDO...";
+  const {doc, setDoc} = window._fb;
+  try {
+    await setDoc(doc(window._db, "resultados", "oficial"), resultadosCache);
+    const cant = Object.keys(resultadosCache).filter(k => resultadosCache[k].gl !== null).length;
+    status.textContent = `✓ Guardado — ${cant} partidos con resultado`;
+    toast("✓ Resultados guardados");
+  } catch(e) {
+    status.style.color = "var(--rojo)"; status.textContent = "✗ Error al guardar.";
+  } finally { btn.disabled = false; btn.textContent = "GUARDAR TODOS LOS RESULTADOS"; }
+}
+
+// ---- CONTROL PREDICCIONES ----
+async function cargarEstadoPredicciones() {
+  const {doc, getDoc} = window._fb;
+  try {
+    const snap = await getDoc(doc(window._db, "config", "predicciones"));
+    renderEstadoBadge(snap.exists() ? snap.data().abierto : true);
+  } catch(e) { renderEstadoBadge(true); }
+}
+
+function renderEstadoBadge(abierto) {
+  const cont = document.getElementById("estado-badge-cont");
+  cont.innerHTML = abierto
+    ? `<div class="estado-badge abierto"><span class="dot verde"></span>PREDICCIONES ABIERTAS</div><br>`
+    : `<div class="estado-badge cerrado"><span class="dot rojo"></span>PREDICCIONES CERRADAS</div><br>`;
+}
+
+async function setEstadoPredicciones(abierto) {
+  const {doc, setDoc} = window._fb;
+  const status = document.getElementById("config-status");
+  try {
+    await setDoc(doc(window._db, "config", "predicciones"), {abierto});
+    renderEstadoBadge(abierto);
+    status.style.color = abierto ? "var(--verde)" : "var(--rojo)";
+    status.textContent = abierto ? "✓ Predicciones abiertas" : "✓ Predicciones cerradas";
+    toast(abierto ? "🟢 Predicciones abiertas" : "🔴 Predicciones cerradas");
+  } catch(e) { status.style.color = "var(--rojo)"; status.textContent = "✗ Error al cambiar estado."; }
+}
+
+// ---- EXPORTAR ----
+async function cargarStatsExport() {
+  const {collection, getDocs} = window._fb;
+  const [predsSnap, usersSnap] = await Promise.all([
+    getDocs(collection(window._db, "predicciones")),
+    getDocs(collection(window._db, "usuarios"))
+  ]);
+  const jugadores = usersSnap.docs.filter(d => d.data().activo !== false).length;
+  const conResultado = Object.keys(resultadosCache).filter(k => resultadosCache[k].gl !== null).length;
+  document.getElementById("exp-jugadores").textContent = jugadores;
+  document.getElementById("exp-resultados").textContent = conResultado;
+}
+
+async function exportarExcel() {
+  const btn = document.getElementById("btn-exportar-excel");
+  const status = document.getElementById("export-status");
+  btn.disabled = true; btn.innerHTML = "<span>⟳</span> GENERANDO...";
+  status.textContent = "";
+  const {collection, getDocs} = window._fb;
+  try {
+    const [predsSnap, usersSnap] = await Promise.all([
+      getDocs(collection(window._db, "predicciones")),
+      getDocs(collection(window._db, "usuarios"))
+    ]);
+    const usuarios = {};
+    usersSnap.forEach(d => { if(d.data().activo !== false) usuarios[d.id] = d.data().nombre || d.id; });
+    const preds = {};
+    predsSnap.forEach(d => { preds[d.id] = d.data(); });
+
+    // Hoja ranking
+    const ranking = [];
+    for(const [uid, nombre] of Object.entries(usuarios)) {
+      const pred = preds[uid] || {};
+      let pts = 0, e5 = 0, e3 = 0;
+      FIXTURE.forEach(p => {
+        const pr = pred[p.id] || null;
+        const re = resultadosCache[p.id] || null;
+        const p_ = calcPts(pr, re);
+        if(p_ !== null) { pts += p_; if(p_===5) e5++; if(p_===3) e3++; }
+      });
+      ranking.push({"#":"", "Jugador":nombre, "Puntos Totales":pts, "Exactos (5pts)":e5, "Resultado (3pts)":e3});
+    }
+    ranking.sort((a,b) => b["Puntos Totales"] - a["Puntos Totales"] || b["Exactos (5pts)"] - a["Exactos (5pts)"]);
+    ranking.forEach((r,i) => r["#"] = i+1);
+
+    // Hoja detalle
+    const rows = [];
+    for(const [uid, nombre] of Object.entries(usuarios)) {
+      const pred = preds[uid] || {};
+      FIXTURE.forEach(p => {
+        const pr = pred[p.id] || null;
+        const re = resultadosCache[p.id] || null;
+        const pts = calcPts(pr, re);
+        rows.push({
+          "Jugador": nombre,
+          "Grupo": p.grupo,
+          "Partido": `${p.local} vs ${p.visitante}`,
+          "Predicción": pr && pr.gl !== null ? `${pr.gl}-${pr.gv}` : "–",
+          "Resultado Real": re && re.gl !== null ? `${re.gl}-${re.gv}` : "–",
+          "Puntos": pts !== null ? pts : "–"
+        });
+      });
+    }
+
+    const wb = XLSX.utils.book_new();
+    const wsRanking = XLSX.utils.json_to_sheet(ranking, {header:["#","Jugador","Puntos Totales","Exactos (5pts)","Resultado (3pts)"]});
+    wsRanking["!cols"] = [{wch:5},{wch:30},{wch:15},{wch:14},{wch:15}];
+    XLSX.utils.book_append_sheet(wb, wsRanking, "Ranking");
+    const wsDetalle = XLSX.utils.json_to_sheet(rows, {header:["Jugador","Grupo","Partido","Predicción","Resultado Real","Puntos"]});
+    wsDetalle["!cols"] = [{wch:30},{wch:8},{wch:35},{wch:12},{wch:14},{wch:8}];
+    XLSX.utils.book_append_sheet(wb, wsDetalle, "Detalle Predicciones");
+
+    const fecha = new Date().toISOString().slice(0,10);
+    XLSX.writeFile(wb, `prode2026-predicciones-${fecha}.xlsx`);
+    status.textContent = `✓ Excel generado con ${Object.keys(usuarios).length} jugadores`;
+    toast("✓ Excel descargado");
+  } catch(e) {
+    status.style.color = "var(--rojo)";
+    status.textContent = "✗ Error: " + e.message;
+    console.error(e);
+  } finally { btn.disabled = false; btn.innerHTML = "<span>⬇</span> DESCARGAR EXCEL"; }
+}
+
+// ---- USUARIOS ----
+async function cargarUsuarios() {
+  const {collection, getDocs} = window._fb;
+  const snap = await getDocs(collection(window._db, "usuarios"));
+  const cont = document.getElementById("users-list");
+  const users = [];
+  snap.forEach(d => users.push({id:d.id, ...d.data()}));
+  users.sort((a,b) => (a.nombre||a.id).localeCompare(b.nombre||b.id));
+  let html = `<table class="users-table"><thead><tr><th>Usuario</th><th>Nombre</th><th>PIN</th><th>Estado</th><th></th></tr></thead><tbody>`;
+  users.forEach(u => {
+    const activo = u.activo !== false;
+    html += `<tr>
+      <td style="color:var(--gris4)">${u.id}</td>
+      <td>${u.nombre||'–'}</td>
+      <td style="font-family:'Bebas Neue',cursive;font-size:1.1rem;color:var(--gris4)">••••••</td>
+      <td><span class="${activo?'badge-activo':'badge-inactivo'}">${activo?'Activo':'Inactivo'}</span></td>
+      <td><button class="btn secondary" style="padding:4px 10px;font-size:0.8rem" onclick="toggleUser('${u.id}',${!activo})">${activo?'Desactivar':'Activar'}</button></td>
+    </tr>`;
+  });
+  html += `</tbody></table><div style="font-family:'Barlow Condensed',sans-serif;font-size:0.8rem;color:var(--gris4);margin-top:12px">${users.length} usuarios registrados</div>`;
+  cont.innerHTML = html;
+}
+
+document.getElementById("btn-add-user").addEventListener("click", async () => {
+  const uid = document.getElementById("new-uid").value.trim().toLowerCase().replace(/\s/g,"");
+  const nombre = document.getElementById("new-nombre").value.trim();
+  const pin = document.getElementById("new-pin").value.trim();
+  const err = document.getElementById("add-user-err");
+  err.textContent = "";
+  if(!uid||!nombre||!pin) { err.textContent = "Completá todos los campos."; return; }
+  if(isNaN(pin)) { err.textContent = "El PIN debe ser numérico."; return; }
+  const {doc, setDoc} = window._fb;
+  try {
+    const pinHash = await hashPin(String(pin));
+    await setDoc(doc(window._db, "usuarios", uid), {nombre, pin: pinHash, activo: true});
+    toast(`✓ ${nombre} agregado`);
+    document.getElementById("new-uid").value = "";
+    document.getElementById("new-nombre").value = "";
+    document.getElementById("new-pin").value = "";
+    await cargarUsuarios();
+  } catch(e) { err.textContent = "Error al guardar usuario."; }
+});
+
+window.toggleUser = async (uid, activo) => {
+  const {doc, setDoc, getDoc} = window._fb;
+  const snap = await getDoc(doc(window._db, "usuarios", uid));
+  if(!snap.exists()) return;
+  await setDoc(doc(window._db, "usuarios", uid), {...snap.data(), activo});
+  toast(`Usuario ${activo?'activado':'desactivado'}`);
+  await cargarUsuarios();
+};
+
+// ---- TABS ----
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById(`panel-${btn.dataset.tab}`).classList.add("active");
+    if(btn.dataset.tab === "usuarios") cargarUsuarios();
+    if(btn.dataset.tab === "config") cargarEstadoPredicciones();
+    if(btn.dataset.tab === "exportar") { cargarResultados().then(() => cargarStatsExport()); }
+  });
+});
+</script>
+</body>
+</html>

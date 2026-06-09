@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carga Masiva — Prode Mundial 2026 - Vaquita -</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, doc, setDoc, writeBatch, collection }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  const firebaseConfig = {
+    apiKey: "AIzaSyBRZz1EfrHAsjMxsgr_d7LIBJoK688OQB4",
+    authDomain: "prode-vaquita-2026.firebaseapp.com",
+    projectId: "prode-vaquita-2026",
+    storageBucket: "prode-vaquita-2026.firebasestorage.app",
+    messagingSenderId: "1075416523474",
+    appId: "1:1075416523474:web:e1954c26cd41986eb5430b"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  window._db = db;
+  window._fb = { doc, setDoc, writeBatch, collection };
+  window._fbReady = true;
+  document.dispatchEvent(new Event("firebase-ready"));
+</script>
+
+<style>
+:root {
+  --negro:#0a0a0a; --verde:#00c853; --verde2:#00e676; --oro:#ffd600;
+  --rojo:#f44336; --azul:#2196f3;
+  --gris1:#1a1a1a; --gris2:#252525; --gris3:#333; --gris4:#666; --blanco:#f0f0f0;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--negro);color:var(--blanco);font-family:'Barlow',sans-serif;min-height:100vh;padding:32px 24px;}
+header{margin-bottom:40px;}
+header h1{font-family:'Bebas Neue',cursive;font-size:2.8rem;color:var(--blanco);letter-spacing:3px;line-height:1;}
+header h1 span{color:var(--verde);}
+header p{font-family:'Barlow Condensed',sans-serif;font-size:0.75rem;letter-spacing:4px;text-transform:uppercase;color:var(--gris4);margin-top:4px;}
+.layout{display:grid;grid-template-columns:340px 1fr;gap:24px;max-width:1200px;}
+@media(max-width:900px){.layout{grid-template-columns:1fr;}}
+.panel{background:var(--gris1);border:1px solid var(--gris3);border-radius:12px;padding:24px;}
+.panel-title{font-family:'Bebas Neue',cursive;font-size:1.3rem;letter-spacing:2px;color:var(--verde);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--gris3);}
+.step{display:flex;gap:14px;margin-bottom:20px;align-items:flex-start;}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--verde);color:var(--negro);font-family:'Bebas Neue',cursive;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.step-num.done{background:var(--gris3);}
+.step-num.active{box-shadow:0 0 0 3px rgba(229,57,53,.3);}
+.step-content h4{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.95rem;margin-bottom:4px;}
+.step-content p{font-family:'Barlow Condensed',sans-serif;font-size:0.82rem;color:var(--gris4);line-height:1.4;}
+.dropzone{border:2px dashed var(--gris3);border-radius:10px;padding:32px 20px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:16px;}
+.dropzone:hover,.dropzone.drag{border-color:var(--verde);background:#1a0505;}
+.dropzone .icon{font-size:2.5rem;margin-bottom:8px;}
+.dropzone p{font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;color:var(--gris4);}
+.dropzone strong{color:var(--blanco);display:block;font-size:1rem;}
+#file-input{display:none;}
+.gmail-btn{width:100%;background:var(--gris2);border:1px solid var(--gris3);border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .2s;margin-bottom:12px;}
+.gmail-btn:hover{border-color:var(--azul);}
+.gmail-btn .gmail-icon{font-size:1.4rem;}
+.gmail-btn div{text-align:left;}
+.gmail-btn strong{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.95rem;display:block;}
+.gmail-btn span{font-family:'Barlow Condensed',sans-serif;font-size:0.78rem;color:var(--gris4);}
+.gmail-btn.connected{border-color:var(--verde);background:#1a0505;}
+.gmail-btn.connected strong{color:var(--verde);}
+.btn-main{width:100%;background:var(--verde);color:var(--negro);border:none;border-radius:8px;padding:14px;font-family:'Bebas Neue',cursive;font-size:1.3rem;letter-spacing:2px;cursor:pointer;transition:all .2s;margin-top:8px;}
+.btn-main:hover{background:var(--verde2);}
+.btn-main:disabled{background:var(--gris3);color:var(--gris4);cursor:not-allowed;}
+.tabla-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.tabla-header h3{font-family:'Bebas Neue',cursive;font-size:1.5rem;letter-spacing:2px;color:var(--blanco);}
+.count-badge{background:var(--gris2);border:1px solid var(--gris3);border-radius:20px;padding:4px 14px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.85rem;color:var(--verde);}
+.data-table{width:100%;border-collapse:collapse;}
+.data-table th{font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--gris4);padding:10px 12px;text-align:left;border-bottom:1px solid var(--gris3);position:sticky;top:0;background:var(--gris1);}
+.data-table td{padding:9px 12px;border-bottom:1px solid var(--gris2);font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;}
+.data-table tr:hover td{background:var(--gris2);}
+.pin-cell{font-family:'Bebas Neue',cursive;font-size:1.1rem;color:var(--oro);letter-spacing:1px;}
+.email-cell{color:var(--gris4);font-size:0.82rem;}
+.table-wrap{background:var(--gris1);border:1px solid var(--gris3);border-radius:12px;overflow:auto;max-height:500px;}
+.row-status{width:24px;text-align:center;}
+.status-ok{color:var(--verde);}
+.status-err{color:var(--rojo);}
+.status-pending{color:var(--gris4);}
+.status-sending{color:var(--oro);}
+.progress-bar-wrap{background:var(--gris2);border-radius:4px;height:6px;margin:16px 0;overflow:hidden;}
+.progress-bar{height:100%;background:var(--verde);border-radius:4px;transition:width .3s;width:0%;}
+.log-box{background:var(--gris2);border:1px solid var(--gris3);border-radius:8px;padding:14px;font-family:'Barlow Condensed',sans-serif;font-size:0.82rem;max-height:140px;overflow-y:auto;margin-top:12px;line-height:1.6;}
+.log-ok{color:var(--verde);}
+.log-err{color:var(--rojo);}
+.log-info{color:var(--gris4);}
+.btn-secondary{background:var(--gris2);border:1px solid var(--gris3);color:var(--blanco);border-radius:6px;padding:8px 16px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer;transition:all .2s;}
+.btn-secondary:hover{border-color:var(--verde);color:var(--verde);}
+.hint{background:var(--gris2);border-left:3px solid var(--oro);border-radius:0 6px 6px 0;padding:10px 14px;margin-bottom:16px;font-family:'Barlow Condensed',sans-serif;font-size:0.82rem;color:var(--gris4);line-height:1.5;}
+.hint strong{color:var(--oro);display:block;margin-bottom:2px;}
+.empty-state{text-align:center;padding:60px 20px;color:var(--gris4);font-family:'Barlow Condensed',sans-serif;}
+.empty-state .icon{font-size:3rem;margin-bottom:12px;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>PRODE<span>2026</span></h1>
+  <p>Carga Masiva de Usuarios</p>
+</header>
+
+<div class="layout">
+  <div>
+    <div class="panel" style="margin-bottom:16px;">
+      <div class="panel-title">PASOS</div>
+
+      <div class="step">
+        <div class="step-num active" id="num1">1</div>
+        <div class="step-content">
+          <h4>Subir Excel</h4>
+          <p>Columnas requeridas: CUIL, Nombre, Email (en cualquier orden)</p>
+        </div>
+      </div>
+
+      <div class="hint">
+        <strong>Formato del Excel</strong>
+        La primera fila debe tener los encabezados exactos:<br>
+        <code style="color:var(--blanco)">CUIL &nbsp;|&nbsp; Nombre &nbsp;|&nbsp; Email</code>
+      </div>
+
+      <div class="dropzone" id="dropzone">
+        <div class="icon">📊</div>
+        <strong>Arrastrá tu Excel aquí</strong>
+        <p>o hacé click para seleccionar</p>
+      </div>
+      <input type="file" id="file-input" accept=".xlsx,.xls,.csv">
+
+      <button class="btn-secondary" id="btn-template" style="width:100%;margin-bottom:20px;">
+        ⬇ Descargar plantilla Excel
+      </button>
+
+      <div class="step">
+        <div class="step-num" id="num2">2</div>
+        <div class="step-content">
+          <h4>Conectar Gmail</h4>
+          <p>Autorizá tu cuenta para enviar los mails</p>
+        </div>
+      </div>
+
+      <div class="gmail-btn" id="btn-gmail" onclick="iniciarGmail()">
+        <span class="gmail-icon">✉️</span>
+        <div>
+          <strong id="gmail-label">Conectar con Gmail</strong>
+          <span id="gmail-sub">Click para autorizar</span>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num" id="num3">3</div>
+        <div class="step-content">
+          <h4>Cargar y enviar</h4>
+          <p>Sube a Firebase y envía el mail a cada jugador</p>
+        </div>
+      </div>
+
+      <button class="btn-main" id="btn-ejecutar" disabled>
+        🚀 CARGAR USUARIOS Y ENVIAR MAILS
+      </button>
+
+      <div class="progress-bar-wrap" id="progress-wrap" style="display:none">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      <div class="log-box" id="log-box" style="display:none"></div>
+
+      <button class="btn-secondary" id="btn-download" style="width:100%;margin-top:12px;display:none">
+        ⬇ Descargar Excel con PINs
+      </button>
+    </div>
+  </div>
+
+  <div>
+    <div class="tabla-header">
+      <h3>PREVISUALIZACIÓN</h3>
+      <span class="count-badge" id="count-badge">0 usuarios</span>
+    </div>
+    <div class="table-wrap">
+      <div class="empty-state" id="empty-state">
+        <div class="icon">📋</div>
+        <div>Subí el Excel para ver la previsualización</div>
+      </div>
+      <table class="data-table" id="data-table" style="display:none">
+        <thead>
+          <tr>
+            <th></th>
+            <th>CUIL</th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>PIN</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+// =====================================================
+//  GMAIL CONFIG — reemplazá con tu Client ID
+// =====================================================
+const GMAIL_CLIENT_ID = "311642186090-mr89pq7nmcduq3unfk223ksrfabjjbmq.apps.googleusercontent.com";
+const GMAIL_SCOPE = "https://www.googleapis.com/auth/gmail.send";
+let gmailToken = null;
+let usuarios = [];
+
+// ---- HASH PIN ----
+async function hashPin(pin) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(pin);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+// ---- GMAIL OAUTH ----
+function iniciarGmail() {
+  if (!window.google) {
+    log("Cargando Google Identity...", "info");
+    const s = document.createElement("script");
+    s.src = "https://accounts.google.com/gsi/client";
+    s.onload = pedirToken;
+    document.head.appendChild(s);
+  } else {
+    pedirToken();
+  }
+}
+
+function pedirToken() {
+  const client = google.accounts.oauth2.initTokenClient({
+    client_id: GMAIL_CLIENT_ID,
+    scope: GMAIL_SCOPE,
+    callback: (resp) => {
+      if (resp.error) { log("Error autorizando Gmail: " + resp.error, "err"); return; }
+      gmailToken = resp.access_token;
+      document.getElementById("btn-gmail").classList.add("connected");
+      document.getElementById("gmail-label").textContent = "Gmail conectado ✓";
+      document.getElementById("gmail-sub").textContent = "Listo para enviar";
+      document.getElementById("num2").textContent = "✓";
+      document.getElementById("num2").classList.add("done");
+      log("Gmail autorizado correctamente", "ok");
+      verificarListo();
+    }
+  });
+  client.requestAccessToken();
+}
+
+// ---- LEER EXCEL ----
+document.getElementById("dropzone").addEventListener("click", () => document.getElementById("file-input").click());
+document.getElementById("dropzone").addEventListener("dragover", (e) => { e.preventDefault(); document.getElementById("dropzone").classList.add("drag"); });
+document.getElementById("dropzone").addEventListener("dragleave", () => document.getElementById("dropzone").classList.remove("drag"));
+document.getElementById("dropzone").addEventListener("drop", (e) => {
+  e.preventDefault();
+  document.getElementById("dropzone").classList.remove("drag");
+  const file = e.dataTransfer.files[0];
+  if (file) procesarArchivo(file);
+});
+document.getElementById("file-input").addEventListener("change", (e) => {
+  if (e.target.files[0]) procesarArchivo(e.target.files[0]);
+});
+
+function procesarArchivo(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const wb = XLSX.read(e.target.result, { type: "binary" });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const data = XLSX.utils.sheet_to_json(ws, { defval: "" });
+      if (!data.length) { alert("El archivo está vacío."); return; }
+
+      const keys = Object.keys(data[0]);
+      const findKey = (variants) => keys.find(k => variants.some(v => k.toLowerCase().includes(v.toLowerCase())));
+      const colCuil = findKey(["cuil", "cuit", "usuario"]);
+      const colNombre = findKey(["nombre", "name", "apellido"]);
+      const colEmail = findKey(["email", "mail", "correo"]);
+
+      if (!colCuil || !colNombre || !colEmail) {
+        alert(`No se encontraron las columnas necesarias.\nSe necesitan: CUIL, Nombre, Email\nColumnas encontradas: ${keys.join(", ")}`);
+        return;
+      }
+
+      usuarios = data
+        .filter(row => row[colCuil] && row[colNombre] && row[colEmail])
+        .map(row => ({
+          cuil: String(row[colCuil]).replace(/[-\s]/g, "").toLowerCase().trim(),
+          nombre: String(row[colNombre]).trim(),
+          email: String(row[colEmail]).trim().toLowerCase(),
+          pin: generarPIN(),
+          status: "pending"
+        }));
+
+      if (!usuarios.length) { alert("No se encontraron filas válidas."); return; }
+
+      renderTabla();
+      document.getElementById("dropzone").style.borderColor = "var(--verde)";
+      document.getElementById("num1").textContent = "✓";
+      document.getElementById("num1").classList.add("done");
+      log(`✓ ${usuarios.length} usuarios cargados del Excel`, "ok");
+      verificarListo();
+    } catch(err) {
+      alert("Error leyendo el archivo: " + err.message);
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
+function generarPIN() {
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+function renderTabla() {
+  const tbody = document.getElementById("tabla-body");
+  document.getElementById("empty-state").style.display = "none";
+  document.getElementById("data-table").style.display = "table";
+  document.getElementById("count-badge").textContent = `${usuarios.length} usuarios`;
+  tbody.innerHTML = usuarios.map((u, i) => `
+    <tr id="row-${i}">
+      <td class="row-status"><span id="st-${i}" class="status-pending">○</span></td>
+      <td style="color:var(--gris4);font-size:0.82rem">${u.cuil}</td>
+      <td style="font-weight:600">${u.nombre}</td>
+      <td class="email-cell">${u.email}</td>
+      <td class="pin-cell">${u.pin}</td>
+    </tr>
+  `).join("");
+}
+
+function verificarListo() {
+  document.getElementById("btn-ejecutar").disabled = !(usuarios.length > 0 && gmailToken);
+}
+
+// ---- EJECUTAR ----
+document.getElementById("btn-ejecutar").addEventListener("click", async () => {
+  if (!usuarios.length || !gmailToken) return;
+
+  const btn = document.getElementById("btn-ejecutar");
+  btn.disabled = true;
+  btn.textContent = "PROCESANDO...";
+  document.getElementById("progress-wrap").style.display = "block";
+  document.getElementById("log-box").style.display = "block";
+
+  let ok = 0, errores = 0;
+
+  for (let i = 0; i < usuarios.length; i++) {
+    const u = usuarios[i];
+    setStatus(i, "sending", "⟳");
+    log(`[${i+1}/${usuarios.length}] Procesando ${u.nombre}...`, "info");
+
+    // 1. Hashear PIN y guardar en Firebase
+    try {
+      const waitFB = () => new Promise(res => {
+        if (window._fbReady) res();
+        else document.addEventListener("firebase-ready", res, { once: true });
+      });
+      await waitFB();
+      const { doc, setDoc } = window._fb;
+      const pinHash = await hashPin(String(u.pin));
+      await setDoc(doc(window._db, "usuarios", u.cuil), {
+        nombre: u.nombre,
+        email: u.email,
+        pin: pinHash,
+        activo: true
+      });
+    } catch(e) {
+      log(`✗ Firebase error (${u.nombre}): ${e.message}`, "err");
+      setStatus(i, "err", "✗");
+      errores++;
+      setProgress(i + 1, usuarios.length);
+      continue;
+    }
+
+    // 2. Enviar mail via Gmail API
+    try {
+      await enviarMail(u);
+      setStatus(i, "ok", "✓");
+      log(`✓ Mail enviado a ${u.email}`, "ok");
+      ok++;
+    } catch(e) {
+      log(`⚠ Firebase OK, mail falló (${u.email}): ${e.message}`, "err");
+      setStatus(i, "err", "⚠");
+      errores++;
+    }
+
+    setProgress(i + 1, usuarios.length);
+    await new Promise(r => setTimeout(r, 300));
+  }
+
+  btn.textContent = `✓ COMPLETADO — ${ok} OK, ${errores} errores`;
+  log(`── Finalizado: ${ok} exitosos, ${errores} con error ──`, "ok");
+  document.getElementById("btn-download").style.display = "block";
+});
+
+// ---- ENVIAR MAIL ----
+async function enviarMail(u) {
+  const asunto = "Prode Mundial 2026  — ¡Jugá, predecí y ganá premios!";
+  const cuerpo = `Hola ${u.nombre},
+
+Te invitamos a participar del Prode Mundial 2026 - Vaquita -.
+
+¡Sin costo y con premios para los ganadores!
+
+Tus datos de acceso son:
+
+  Usuario: ${u.cuil}
+  Código:  ${u.pin}
+
+Ingresá en: https://prodemundial2026ba-droid.github.io/prode/
+
+Tenés tiempo hasta el jueves 11 de junio para completar tus predicciones, antes del inicio del primer partido.
+
+¡Buena suerte!
+
+---
+Este mensaje fue enviado automáticamente.`;
+
+  const mensaje = [
+    `To: ${u.email}`,
+    `Subject: =?UTF-8?B?${btoa(unescape(encodeURIComponent(asunto)))}?=`,
+    `Content-Type: text/plain; charset=utf-8`,
+    `Content-Transfer-Encoding: base64`,
+    ``,
+    btoa(unescape(encodeURIComponent(cuerpo)))
+  ].join("\r\n");
+
+  const encoded = btoa(mensaje).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+
+  const res = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${gmailToken}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ raw: encoded })
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error?.message || "Error Gmail API");
+  }
+}
+
+// ---- DESCARGA EXCEL RESPALDO ----
+document.getElementById("btn-download").addEventListener("click", () => {
+  const data = usuarios.map(u => ({
+    CUIL: u.cuil,
+    Nombre: u.nombre,
+    Email: u.email,
+    PIN: u.pin,
+    Estado: u.status === "ok" ? "OK" : "Error"
+  }));
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(data);
+  ws["!cols"] = [{wch:18},{wch:30},{wch:35},{wch:10},{wch:10}];
+  XLSX.utils.book_append_sheet(wb, ws, "Usuarios");
+  XLSX.writeFile(wb, "prode2026-usuarios.xlsx");
+});
+
+// ---- TEMPLATE ----
+document.getElementById("btn-template").addEventListener("click", () => {
+  const data = [
+    { CUIL: "20123456789", Nombre: "Juan Pérez", Email: "juan.perez@ejemplo.com" },
+    { CUIL: "27987654321", Nombre: "María García", Email: "maria.garcia@ejemplo.com" },
+  ];
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(data);
+  ws["!cols"] = [{wch:18},{wch:30},{wch:35}];
+  XLSX.utils.book_append_sheet(wb, ws, "Usuarios");
+  XLSX.writeFile(wb, "plantilla-usuarios.xlsx");
+});
+
+// ---- UTILS ----
+function setStatus(i, tipo, icon) {
+  const el = document.getElementById(`st-${i}`);
+  if (!el) return;
+  el.className = `status-${tipo}`;
+  el.textContent = icon;
+  usuarios[i].status = tipo;
+}
+
+function setProgress(done, total) {
+  document.getElementById("progress-bar").style.width = `${(done/total)*100}%`;
+}
+
+function log(msg, tipo = "info") {
+  const box = document.getElementById("log-box");
+  const line = document.createElement("div");
+  line.className = `log-${tipo}`;
+  line.textContent = msg;
+  box.appendChild(line);
+  box.scrollTop = box.scrollHeight;
+}
+</script>
