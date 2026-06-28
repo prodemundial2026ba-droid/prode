@@ -671,7 +671,7 @@ main {
   border: 1px solid var(--gris3);
   border-left: 3px solid transparent;
   border-radius: 10px;
-  padding: 10px 12px;
+  padding: 12px 14px;
   margin: 6px 0;
   transition: border-color 180ms var(--ease-out), transform 150ms var(--ease-out);
   opacity: 0;
@@ -683,26 +683,26 @@ main {
 
 .bracket-card-fase {
   font-family: var(--cond); font-size: 0.65rem; letter-spacing: 1.5px;
-  text-transform: uppercase; color: var(--gris4); margin-bottom: 6px;
+  text-transform: uppercase; color: var(--gris4); margin-bottom: 10px;
   display: flex; align-items: center; justify-content: space-between;
 }
 
-.bracket-equipos {
-  display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px;
+/* Cada fila = equipo + su input de gol */
+.bracket-equipo-row {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 6px;
 }
+.bracket-equipo-row:last-of-type { margin-bottom: 0; }
 
 .bracket-equipo {
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; gap: 6px;
   font-family: var(--cond); font-weight: 700; font-size: 0.9rem;
+  flex: 1;
 }
 .bracket-equipo.tbd { color: var(--gris4); font-style: italic; }
 
-.bracket-marcador {
-  display: flex; align-items: center; gap: 6px;
-  margin-left: auto;
-}
 .bracket-inp {
-  width: 36px; height: 34px;
+  width: 38px; height: 34px;
   background: rgba(0,0,0,0.4);
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: 8px;
@@ -711,6 +711,7 @@ main {
   text-align: center; outline: none;
   transition: border-color 160ms var(--ease-out), box-shadow 160ms var(--ease-out);
   -moz-appearance: textfield;
+  flex-shrink: 0;
 }
 .bracket-inp::-webkit-outer-spin-button,
 .bracket-inp::-webkit-inner-spin-button { -webkit-appearance: none; }
@@ -718,16 +719,20 @@ main {
   border-color: var(--verde);
   box-shadow: 0 0 0 3px rgba(229,57,53,0.2);
 }
-.bracket-inp[readonly] {
-  opacity: 0.5; cursor: not-allowed;
-}
-.bracket-sep { font-family: var(--titulo); font-size: 1rem; color: var(--gris4); }
+.bracket-inp[readonly] { opacity: 0.5; cursor: not-allowed; }
 
-/* Resultado real en bracket */
-.bracket-real {
-  font-family: var(--titulo); font-size: 1.1rem; color: var(--blanco);
-  text-align: center; min-width: 40px;
+/* Separador central entre las dos filas */
+.bracket-sep-col {
+  font-family: var(--titulo); font-size: 0.85rem; color: var(--gris4);
+  text-align: right; padding-right: 2px; width: 38px; flex-shrink: 0;
 }
+
+/* Resultado real */
+.bracket-real {
+  font-family: var(--titulo); font-size: 1rem; color: var(--blanco);
+  text-align: center; min-width: 28px; flex-shrink: 0;
+}
+.bracket-real.pendiente { color: var(--gris4); font-size: 0.75rem; }
 
 /* Countdown */
 .bracket-countdown {
@@ -1119,37 +1124,29 @@ function renderEliminatorias() {
       const gvVal = pred && pred.gv !== null ? pred.gv : "";
       const ro = cerrado ? "readonly" : "";
 
-      // Equipo local
-      const localHtml = local
-        ? `<div class="bracket-equipo">${getBandera(local)}<span>${local}</span></div>`
-        : `<div class="bracket-equipo tbd">Por definir</div>`;
-      const visitanteHtml = visitante
-        ? `<div class="bracket-equipo">${getBandera(visitante)}<span>${visitante}</span></div>`
-        : `<div class="bracket-equipo tbd">Por definir</div>`;
 
-      // Resultado real si existe
-      const realHtml = real
-        ? `<div class="bracket-real">${real.gl} - ${real.gv}</div>`
-        : `<div class="bracket-real" style="color:var(--gris4)">?</div>`;
+
+      // Resultado real separado por equipo
+      const glRealTxt = real ? String(real.gl) : '?';
+      const gvRealTxt = real ? String(real.gv) : '?';
+      const realClass = real ? '' : 'pendiente';
 
       html += `<div class="bracket-card ${cardClass}" data-id="${p.id}" style="animation-delay:${delay}ms">
         <div class="bracket-card-fase">
           <span>${label} · P${p.num}</span>
           ${ptsBadge}
         </div>
-        <div class="bracket-equipos">
-          <div style="display:flex;align-items:center;gap:6px">
-            ${localHtml}
-            <div class="bracket-marcador" style="margin-left:auto">
-              <input type="number" class="bracket-inp elim-inp" min="0" max="20"
-                data-pid="${p.id}" data-lado="gl" value="${glVal}" ${ro} placeholder="–">
-              <span class="bracket-sep">:</span>
-              <input type="number" class="bracket-inp elim-inp" min="0" max="20"
-                data-pid="${p.id}" data-lado="gv" value="${gvVal}" ${ro} placeholder="–">
-            </div>
-            ${realHtml}
-          </div>
-          ${visitanteHtml}
+        <div class="bracket-equipo-row">
+          <div class="bracket-equipo ${!local?'tbd':''}">${local ? getBandera(local) + local : 'Por definir'}</div>
+          <input type="number" class="bracket-inp elim-inp" min="0" max="20"
+            data-pid="${p.id}" data-lado="gl" value="${glVal}" ${ro} placeholder="–">
+          <div class="bracket-real ${realClass}">${glRealTxt}</div>
+        </div>
+        <div class="bracket-equipo-row">
+          <div class="bracket-equipo ${!visitante?'tbd':''}">${visitante ? getBandera(visitante) + visitante : 'Por definir'}</div>
+          <input type="number" class="bracket-inp elim-inp" min="0" max="20"
+            data-pid="${p.id}" data-lado="gv" value="${gvVal}" ${ro} placeholder="–">
+          <div class="bracket-real ${realClass}">${gvRealTxt}</div>
         </div>
         <div class="bracket-countdown" id="cd-${p.id}">
           ${cerrado ? '<span class="countdown-cerrado">🔒 Cerrado</span>' : ''}
