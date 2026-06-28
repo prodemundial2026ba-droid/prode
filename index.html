@@ -586,10 +586,9 @@ main {
 
 <div id="app" style="display:none">
   <header>
-    <div class="header-inner">
       <div class="logo">
         <h1>PRODE<span>2026</span></h1>
-        <p>Copa Mundial FIFA</p>
+        <p>Prode Mundial 2026 - Vaquita -</p>
       </div>
       <div class="user-info">
         <span class="user-chip" id="chip-usuario">—</span>
@@ -600,27 +599,182 @@ main {
 
   <nav class="tabs">
     <ul>
-      <li><a href="#" class="active" data-tab="predicciones">Mis Predicciones</a></li>
+      <li><a href="#" class="active" data-tab="eliminatorias">⚡ Eliminatorias</a></li>
+      <li><a href="#" data-tab="predicciones">Mis Predicciones</a></li>
       <li><a href="#" data-tab="resultados">Mis Resultados</a></li>
-      <li><a href="#" data-tab="ranking">Ranking</a></li>
+      <li><a href="#" data-tab="ranking-grupos">Ranking Grupos</a></li>
+      <li><a href="#" data-tab="ranking-elim">Ranking Eliminatorias</a></li>
     </ul>
   </nav>
 
   <main>
-    <div class="section active" id="tab-predicciones">
+    <div class="section active" id="tab-eliminatorias">
+      <div id="eliminatorias-content"><div class="spinner"></div></div>
+    </div>
+    <div class="section" id="tab-predicciones">
       <div id="predicciones-content"><div class="spinner"></div></div>
     </div>
     <div class="section" id="tab-resultados">
       <div id="resultados-content"><div class="spinner"></div></div>
     </div>
-    <div class="section" id="tab-ranking">
-      <div id="ranking-content"><div class="spinner"></div></div>
+    <div class="section" id="tab-ranking-grupos">
+      <div id="ranking-grupos-content"><div class="spinner"></div></div>
+    </div>
+    <div class="section" id="tab-ranking-elim">
+      <div id="ranking-elim-content"><div class="spinner"></div></div>
     </div>
   </main>
 </div>
 
 <div id="toast"></div>
 
+<!-- CSS adicional para eliminatorias -->
+<style>
+/* ===== BRACKET ELIMINATORIAS ===== */
+.elim-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 28px; flex-wrap: wrap; gap: 12px;
+}
+.elim-title {
+  font-family: var(--titulo); font-size: 2rem; letter-spacing: 3px; color: var(--blanco);
+}
+.elim-title span { color: var(--verde); }
+
+.bracket-wrap { overflow-x: auto; padding-bottom: 16px; }
+
+.bracket {
+  display: flex; gap: 0; align-items: flex-start;
+  min-width: 900px;
+}
+
+.bracket-ronda {
+  flex: 1; display: flex; flex-direction: column;
+  gap: 0; min-width: 200px;
+}
+
+.ronda-titulo {
+  font-family: var(--cond); font-weight: 700; font-size: 0.72rem;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--gris4);
+  text-align: center; padding: 8px 0 16px; border-bottom: 1px solid var(--gris3);
+  margin-bottom: 8px;
+}
+
+.bracket-partidos {
+  display: flex; flex-direction: column;
+  justify-content: space-around; flex: 1;
+  padding: 4px 8px;
+}
+
+/* Tarjeta de partido en bracket */
+.bracket-card {
+  background: linear-gradient(135deg, rgba(40,10,10,0.9) 0%, rgba(26,5,5,0.95) 100%);
+  border: 1px solid var(--gris3);
+  border-left: 3px solid transparent;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin: 6px 0;
+  transition: border-color 180ms var(--ease-out), transform 150ms var(--ease-out);
+  opacity: 0;
+  animation: cardIn 300ms var(--ease-out) forwards;
+}
+.bracket-card.abierto { border-left-color: var(--verde); }
+.bracket-card.cerrado { border-left-color: var(--gris3); opacity: 0.6; pointer-events: none; }
+.bracket-card.sin-equipos { border-left-color: var(--gris3); opacity: 0.35; }
+
+.bracket-card-fase {
+  font-family: var(--cond); font-size: 0.65rem; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--gris4); margin-bottom: 6px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.bracket-equipos {
+  display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px;
+}
+
+.bracket-equipo {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--cond); font-weight: 700; font-size: 0.9rem;
+}
+.bracket-equipo.tbd { color: var(--gris4); font-style: italic; }
+
+.bracket-marcador {
+  display: flex; align-items: center; gap: 6px;
+  margin-left: auto;
+}
+.bracket-inp {
+  width: 36px; height: 34px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  color: var(--blanco);
+  font-family: var(--titulo); font-size: 1.2rem;
+  text-align: center; outline: none;
+  transition: border-color 160ms var(--ease-out), box-shadow 160ms var(--ease-out);
+  -moz-appearance: textfield;
+}
+.bracket-inp::-webkit-outer-spin-button,
+.bracket-inp::-webkit-inner-spin-button { -webkit-appearance: none; }
+.bracket-inp:focus {
+  border-color: var(--verde);
+  box-shadow: 0 0 0 3px rgba(229,57,53,0.2);
+}
+.bracket-inp[readonly] {
+  opacity: 0.5; cursor: not-allowed;
+}
+.bracket-sep { font-family: var(--titulo); font-size: 1rem; color: var(--gris4); }
+
+/* Resultado real en bracket */
+.bracket-real {
+  font-family: var(--titulo); font-size: 1.1rem; color: var(--blanco);
+  text-align: center; min-width: 40px;
+}
+
+/* Countdown */
+.bracket-countdown {
+  font-family: var(--cond); font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 1px; text-align: right;
+}
+.countdown-abierto { color: var(--verde); }
+.countdown-urgente { color: var(--oro); animation: pulse 1s infinite; }
+.countdown-cerrado { color: var(--gris4); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+/* Puntos badge en bracket */
+.bracket-pts {
+  width: 24px; height: 24px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--titulo); font-size: 0.8rem; flex-shrink: 0;
+}
+.bpts-5 { background: var(--oro); color: #1a1200; }
+.bpts-3 { background: var(--verde); color: #1a0000; }
+.bpts-0 { background: var(--gris3); color: var(--gris4); }
+.bpts-null { border: 1px dashed var(--gris3); }
+
+/* Botón guardar eliminatorias */
+.elim-save-bar {
+  position: sticky; bottom: 0;
+  background: linear-gradient(0deg, var(--negro) 80%, transparent);
+  padding: 16px 0 8px; text-align: center; margin-top: 16px;
+}
+
+/* Ranking eliminatorias — empate = mismo puesto */
+.rank-empate { color: var(--gris4); font-size: 0.75rem; }
+
+/* Sin partidos disponibles */
+.elim-empty {
+  text-align: center; padding: 60px 20px;
+  font-family: var(--cond); color: var(--gris4);
+}
+.elim-empty .icon { font-size: 3rem; margin-bottom: 12px; }
+
+@media (max-width: 600px) {
+  .bracket { min-width: 700px; }
+  .bracket-ronda { min-width: 160px; }
+  .bracket-equipo { font-size: 0.78rem; }
+}
+</style>
+
+<!-- FIXTURE GRUPOS + DATOS ELIMINATORIAS -->
 <script>
 const GRUPOS = {
   A: ["México","Corea del Sur","Sudáfrica","Rep. Checa"],
@@ -628,7 +782,7 @@ const GRUPOS = {
   C: ["Brasil","Marruecos","Escocia","Haití"],
   D: ["EE.UU.","Paraguay","Australia","Turquía"],
   E: ["Alemania","Ecuador","Costa de Marfil","Curazao"],
-  F: ["Países Bajos","Japón","Túnez","Suecia"],
+  F: ["Países Bajos","Japón","Suecia","Túnez"],
   G: ["Bélgica","Irán","Egipto","Nueva Zelanda"],
   H: ["España","Uruguay","Arabia Saudí","Cabo Verde"],
   I: ["Francia","Senegal","Noruega","Irak"],
@@ -643,16 +797,18 @@ const FLAG_CODES = {
   "Brasil":"br","Marruecos":"ma","Escocia":"gb-sct","Haití":"ht",
   "EE.UU.":"us","Paraguay":"py","Australia":"au","Turquía":"tr",
   "Alemania":"de","Ecuador":"ec","Costa de Marfil":"ci","Curazao":"cw",
-  "Países Bajos":"nl","Japón":"jp","Túnez":"tn","Suecia":"se",
+  "Países Bajos":"nl","Japón":"jp","Suecia":"se","Túnez":"tn",
   "Bélgica":"be","Irán":"ir","Egipto":"eg","Nueva Zelanda":"nz",
   "España":"es","Uruguay":"uy","Arabia Saudí":"sa","Cabo Verde":"cv",
   "Francia":"fr","Senegal":"sn","Noruega":"no","Irak":"iq",
   "Argentina":"ar","Austria":"at","Argelia":"dz","Jordania":"jo",
   "Portugal":"pt","Colombia":"co","Uzbekistán":"uz","RD Congo":"cd",
-  "Inglaterra":"gb-eng","Croacia":"hr","Panamá":"pa","Ghana":"gh"
+  "Inglaterra":"gb-eng","Croacia":"hr","Panamá":"pa","Ghana":"gh",
+  "Ucrania":"ua"
 };
 
 function getBandera(pais) {
+  if (!pais) return '';
   const code = FLAG_CODES[pais];
   if (!code) return '';
   return `<img src="https://flagcdn.com/20x15/${code}.png" srcset="https://flagcdn.com/40x30/${code}.png 2x" width="20" height="15" alt="${pais}" style="vertical-align:middle;border-radius:2px;margin-right:2px;">`;
@@ -672,7 +828,6 @@ function generarFixture() {
   }
   return fixture;
 }
-
 const FIXTURE = generarFixture();
 
 function calcularPuntos(pred, real) {
@@ -683,22 +838,81 @@ function calcularPuntos(pred, real) {
   if (signo(pred.gl - pred.gv) === signo(real.gl - real.gv)) return 3;
   return 0;
 }
+
+// =====================================================
+// FIXTURE ELIMINATORIAS
+// Horarios en UTC-3 (hora Argentina)
+// Los partidos se muestran cuando el admin carga los equipos
+// El cierre se hace automáticamente via Firebase al llegar la hora
+// =====================================================
+const FIXTURE_ELIM = [
+  // 16AVOS (Round of 32) — 28 Jun al 3 Jul
+  { id:"R32_01", fase:"16avos", num:1, fechaISO:"2026-06-28T16:00:00-03:00" },
+  { id:"R32_02", fase:"16avos", num:2, fechaISO:"2026-06-29T14:00:00-03:00" },
+  { id:"R32_03", fase:"16avos", num:3, fechaISO:"2026-06-29T18:00:00-03:00" },
+  { id:"R32_04", fase:"16avos", num:4, fechaISO:"2026-06-29T22:00:00-03:00" },
+  { id:"R32_05", fase:"16avos", num:5, fechaISO:"2026-06-30T14:00:00-03:00" },
+  { id:"R32_06", fase:"16avos", num:6, fechaISO:"2026-06-30T18:00:00-03:00" },
+  { id:"R32_07", fase:"16avos", num:7, fechaISO:"2026-06-30T22:00:00-03:00" },
+  { id:"R32_08", fase:"16avos", num:8, fechaISO:"2026-07-01T13:00:00-03:00" },
+  { id:"R32_09", fase:"16avos", num:9, fechaISO:"2026-07-01T17:00:00-03:00" },
+  { id:"R32_10", fase:"16avos", num:10, fechaISO:"2026-07-01T21:00:00-03:00" },
+  { id:"R32_11", fase:"16avos", num:11, fechaISO:"2026-07-02T16:00:00-03:00" },
+  { id:"R32_12", fase:"16avos", num:12, fechaISO:"2026-07-02T20:00:00-03:00" },
+  { id:"R32_13", fase:"16avos", num:13, fechaISO:"2026-07-02T22:00:00-03:00" },
+  { id:"R32_14", fase:"16avos", num:14, fechaISO:"2026-07-03T15:00:00-03:00" },
+  { id:"R32_15", fase:"16avos", num:15, fechaISO:"2026-07-03T19:00:00-03:00" },
+  { id:"R32_16", fase:"16avos", num:16, fechaISO:"2026-07-03T22:30:00-03:00" },
+  // OCTAVOS (Round of 16) — 4 al 7 Jul
+  { id:"R16_01", fase:"octavos", num:1, fechaISO:"2026-07-04T14:00:00-03:00" },
+  { id:"R16_02", fase:"octavos", num:2, fechaISO:"2026-07-04T18:00:00-03:00" },
+  { id:"R16_03", fase:"octavos", num:3, fechaISO:"2026-07-05T15:00:00-03:00" },
+  { id:"R16_04", fase:"octavos", num:4, fechaISO:"2026-07-05T21:00:00-03:00" },
+  { id:"R16_05", fase:"octavos", num:5, fechaISO:"2026-07-06T13:00:00-03:00" },
+  { id:"R16_06", fase:"octavos", num:6, fechaISO:"2026-07-06T17:00:00-03:00" },
+  { id:"R16_07", fase:"octavos", num:7, fechaISO:"2026-07-06T21:00:00-03:00" },
+  { id:"R16_08", fase:"octavos", num:8, fechaISO:"2026-07-07T17:00:00-03:00" },
+  // CUARTOS — 9 al 11 Jul
+  { id:"QF_01", fase:"cuartos", num:1, fechaISO:"2026-07-09T17:00:00-03:00" },
+  { id:"QF_02", fase:"cuartos", num:2, fechaISO:"2026-07-09T21:00:00-03:00" },
+  { id:"QF_03", fase:"cuartos", num:3, fechaISO:"2026-07-10T17:00:00-03:00" },
+  { id:"QF_04", fase:"cuartos", num:4, fechaISO:"2026-07-11T17:00:00-03:00" },
+  // SEMIS — 14 y 15 Jul
+  { id:"SF_01", fase:"semis", num:1, fechaISO:"2026-07-14T21:00:00-03:00" },
+  { id:"SF_02", fase:"semis", num:2, fechaISO:"2026-07-15T21:00:00-03:00" },
+  // 3ER PUESTO — 18 Jul
+  { id:"TP_01", fase:"tercero", num:1, fechaISO:"2026-07-18T17:00:00-03:00" },
+  // FINAL — 19 Jul
+  { id:"FN_01", fase:"final", num:1, fechaISO:"2026-07-19T16:00:00-03:00" },
+];
+
+const FASES_LABELS = {
+  "16avos": "16avos de Final",
+  "octavos": "Octavos de Final",
+  "cuartos": "Cuartos de Final",
+  "semis": "Semifinales",
+  "tercero": "3er Puesto",
+  "final": "Final"
+};
+
+const FASES_ORDEN = ["16avos","octavos","cuartos","semis","tercero","final"];
 </script>
 
+<!-- LÓGICA PRINCIPAL -->
 <script type="module">
 
 let currentUser = null;
-let prediccionesCache = {};
-let resultadosCache = {};
-let rankingUnsub = null;
-let predAbiertoCache = true;
+let prediccionesCache = {};    // grupos
+let resultadosCache = {};      // grupos
+let predAbiertoCache = true;   // control global grupos
 
-// ---- Utilidades ----
-function estaAbierto() {
-  return predAbiertoCache;
-}
+// Eliminatorias
+let elimPartidosCache = {};    // datos de cada partido (equipos, resultado, cerrado)
+let elimPredsCache = {};       // predicciones del usuario en elim
+let horaServidor = null;       // offset entre hora real y hora local
+let countdownTimers = [];      // referencias a setInterval activos
 
-// ---- HASH PIN — fuera de login, accesible globalmente ----
+// ---- HASH PIN ----
 async function hashPin(pin) {
   const encoder = new TextEncoder();
   const data = encoder.encode(pin);
@@ -709,8 +923,7 @@ async function hashPin(pin) {
 
 function toast(msg, dur = 2500) {
   const t = document.getElementById("toast");
-  t.textContent = msg;
-  t.classList.add("show");
+  t.textContent = msg; t.classList.add("show");
   setTimeout(() => t.classList.remove("show"), dur);
 }
 
@@ -719,18 +932,42 @@ function setTab(name) {
   document.querySelectorAll("nav.tabs a").forEach(a => a.classList.remove("active"));
   document.getElementById(`tab-${name}`).classList.add("active");
   document.querySelector(`[data-tab="${name}"]`).classList.add("active");
+  if (name === "eliminatorias") renderEliminatorias();
   if (name === "predicciones") renderPredicciones();
   if (name === "resultados") renderResultados();
-  if (name === "ranking") renderRanking();
+  if (name === "ranking-grupos") renderRankingGrupos();
+  if (name === "ranking-elim") renderRankingElim();
 }
 
-// ---- AUTH ----
+// ============================================================
+// HORA DEL SERVIDOR — worldtimeapi.org (hora Buenos Aires)
+// ============================================================
+async function obtenerHoraServidor() {
+  try {
+    const res = await fetch("https://worldtimeapi.org/api/timezone/America/Argentina/Buenos_Aires");
+    const data = await res.json();
+    const horaReal = new Date(data.datetime);
+    const horaLocal = new Date();
+    // offset en ms entre hora real y local del navegador
+    horaServidor = horaReal.getTime() - horaLocal.getTime();
+  } catch(e) {
+    console.warn("worldtimeapi no disponible, usando hora local");
+    horaServidor = 0;
+  }
+}
+
+function ahoraReal() {
+  return new Date(Date.now() + (horaServidor || 0));
+}
+
+// ============================================================
+// AUTH
+// ============================================================
 async function login(usuario, pass) {
   const db = window._db;
   const { doc, getDoc } = window._firebase;
   const err = document.getElementById("login-error");
   err.textContent = "";
-
   try {
     const snap = await getDoc(doc(db, "usuarios", usuario.toLowerCase().trim()));
     if (!snap.exists()) { err.textContent = "Usuario no encontrado."; return; }
@@ -746,7 +983,7 @@ async function login(usuario, pass) {
     document.getElementById("chip-usuario").textContent = currentUser.nombre;
 
     await cargarDatos();
-    setTab("predicciones");
+    setTab("eliminatorias");
   } catch(e) {
     err.textContent = "Error de conexión. Intente nuevamente.";
     console.error(e);
@@ -755,29 +992,270 @@ async function login(usuario, pass) {
 
 async function cargarDatos() {
   const db = window._db;
-  const { doc, getDoc, onSnapshot } = window._firebase;
+  const { doc, getDoc, onSnapshot, collection } = window._firebase;
 
+  // Hora del servidor (para countdowns)
+  await obtenerHoraServidor();
+
+  // Predicciones grupos
   const pSnap = await getDoc(doc(db, "predicciones", currentUser.id));
   prediccionesCache = pSnap.exists() ? pSnap.data() : {};
 
+  // Resultados grupos
   const rSnap = await getDoc(doc(db, "resultados", "oficial"));
   resultadosCache = rSnap.exists() ? rSnap.data() : {};
 
-  // Escucha en tiempo real el estado de predicciones
-  // Si el admin cierra/abre, se aplica instantáneamente sin recargar
+  // Estado global grupos (onSnapshot en tiempo real)
   onSnapshot(doc(db, "config", "predicciones"), (snap) => {
     const nuevoEstado = snap.exists() ? snap.data().abierto : true;
     if (nuevoEstado !== predAbiertoCache) {
       predAbiertoCache = nuevoEstado;
       const tabActiva = document.querySelector("nav.tabs a.active");
-      if (tabActiva && tabActiva.dataset.tab === "predicciones") {
-        renderPredicciones();
-      }
+      if (tabActiva && tabActiva.dataset.tab === "predicciones") renderPredicciones();
+    }
+  });
+
+  // Predicciones eliminatorias del usuario
+  const epSnap = await getDoc(doc(db, "predicciones_elim", currentUser.id));
+  elimPredsCache = epSnap.exists() ? epSnap.data() : {};
+
+  // Partidos eliminatorias (onSnapshot en tiempo real — recibe cambios del admin)
+  onSnapshot(collection(db, "elim_partidos"), (snap) => {
+    snap.forEach(d => { elimPartidosCache[d.id] = d.data(); });
+    // Verificar cierres automáticos
+    verificarCierresAutomaticos();
+    // Si está en tab eliminatorias, re-renderizar
+    const tabActiva = document.querySelector("nav.tabs a.active");
+    if (tabActiva && tabActiva.dataset.tab === "eliminatorias") renderEliminatorias();
+  });
+}
+
+// ============================================================
+// CIERRE AUTOMÁTICO POR HORA
+// Cuando llega la hora de un partido, escribe cerrado:true en Firebase
+// Todos los navegadores reciben el cambio via onSnapshot
+// ============================================================
+function verificarCierresAutomaticos() {
+  const ahora = ahoraReal();
+  FIXTURE_ELIM.forEach(async (p) => {
+    const datos = elimPartidosCache[p.id];
+    if (!datos) return; // sin equipos = no existe aún
+    if (datos.cerrado) return; // ya cerrado
+    const horaPartido = new Date(p.fechaISO);
+    if (ahora >= horaPartido) {
+      // Llegó la hora — cerrar en Firebase
+      const { doc, setDoc } = window._firebase;
+      try {
+        await setDoc(doc(window._db, "elim_partidos", p.id), { ...datos, cerrado: true });
+      } catch(e) { console.error("Error cerrando partido", p.id, e); }
     }
   });
 }
 
-// ---- PREDICCIONES ----
+// ============================================================
+// RENDER ELIMINATORIAS — BRACKET VISUAL
+// ============================================================
+function renderEliminatorias() {
+  const cont = document.getElementById("eliminatorias-content");
+
+  // Limpiar timers anteriores
+  countdownTimers.forEach(t => clearInterval(t));
+  countdownTimers = [];
+
+  // Agrupar por fase
+  const fases = {};
+  FASES_ORDEN.forEach(f => { fases[f] = []; });
+  FIXTURE_ELIM.forEach(p => { fases[p.fase].push(p); });
+
+  // Ver si hay algún partido disponible
+  const hayPartidos = FIXTURE_ELIM.some(p => elimPartidosCache[p.id]);
+  if (!hayPartidos) {
+    cont.innerHTML = `<div class="elim-empty">
+      <div class="icon">⏳</div>
+      <div style="font-family:var(--titulo);font-size:1.8rem;letter-spacing:2px;margin-bottom:8px">PRÓXIMAMENTE</div>
+      <div>Los cruces de eliminatorias se habilitarán cuando finalice la fase de grupos.</div>
+    </div>`;
+    return;
+  }
+
+  let html = `<div class="elim-header">
+    <div class="elim-title">ELIMINATORIAS <span>2026</span></div>
+    <div style="font-family:var(--cond);font-size:0.78rem;color:var(--gris4)">
+      Resultado a los 90 min · 3pts resultado · 5pts exacto
+    </div>
+  </div>
+  <div class="bracket-wrap"><div class="bracket">`;
+
+  FASES_ORDEN.forEach((fase, fi) => {
+    const partidos = fases[fase];
+    const label = FASES_LABELS[fase];
+    const disponibles = partidos.filter(p => elimPartidosCache[p.id]);
+    if (disponibles.length === 0) return;
+
+    html += `<div class="bracket-ronda">
+      <div class="ronda-titulo">${label}</div>
+      <div class="bracket-partidos">`;
+
+    partidos.forEach((p, pidx) => {
+      const datos = elimPartidosCache[p.id];
+      if (!datos) return;
+
+      const cerrado = datos.cerrado || false;
+      const local = datos.local || null;
+      const visitante = datos.visitante || null;
+      const real = (datos.gl_real !== undefined && datos.gl_real !== null) ? { gl: datos.gl_real, gv: datos.gv_real } : null;
+      const pred = elimPredsCache[p.id] || null;
+      const pts = calcularPuntos(pred, real);
+      const sinEquipos = !local && !visitante;
+      const delay = (fi * 4 + pidx) * 40;
+
+      let cardClass = sinEquipos ? "sin-equipos" : cerrado ? "cerrado" : "abierto";
+
+      // Badge puntos
+      let ptsBadge = `<div class="bracket-pts bpts-null"></div>`;
+      if (pts === 5) ptsBadge = `<div class="bracket-pts bpts-5">5</div>`;
+      else if (pts === 3) ptsBadge = `<div class="bracket-pts bpts-3">3</div>`;
+      else if (pts === 0 && real) ptsBadge = `<div class="bracket-pts bpts-0">0</div>`;
+
+      // Inputs predicción
+      const glVal = pred && pred.gl !== null ? pred.gl : "";
+      const gvVal = pred && pred.gv !== null ? pred.gv : "";
+      const ro = cerrado ? "readonly" : "";
+
+      // Equipo local
+      const localHtml = local
+        ? `<div class="bracket-equipo">${getBandera(local)}<span>${local}</span></div>`
+        : `<div class="bracket-equipo tbd">Por definir</div>`;
+      const visitanteHtml = visitante
+        ? `<div class="bracket-equipo">${getBandera(visitante)}<span>${visitante}</span></div>`
+        : `<div class="bracket-equipo tbd">Por definir</div>`;
+
+      // Resultado real si existe
+      const realHtml = real
+        ? `<div class="bracket-real">${real.gl} - ${real.gv}</div>`
+        : `<div class="bracket-real" style="color:var(--gris4)">?</div>`;
+
+      html += `<div class="bracket-card ${cardClass}" data-id="${p.id}" style="animation-delay:${delay}ms">
+        <div class="bracket-card-fase">
+          <span>${label} · P${p.num}</span>
+          ${ptsBadge}
+        </div>
+        <div class="bracket-equipos">
+          <div style="display:flex;align-items:center;gap:6px">
+            ${localHtml}
+            <div class="bracket-marcador" style="margin-left:auto">
+              <input type="number" class="bracket-inp elim-inp" min="0" max="20"
+                data-pid="${p.id}" data-lado="gl" value="${glVal}" ${ro} placeholder="–">
+              <span class="bracket-sep">:</span>
+              <input type="number" class="bracket-inp elim-inp" min="0" max="20"
+                data-pid="${p.id}" data-lado="gv" value="${gvVal}" ${ro} placeholder="–">
+            </div>
+            ${realHtml}
+          </div>
+          ${visitanteHtml}
+        </div>
+        <div class="bracket-countdown" id="cd-${p.id}">
+          ${cerrado ? '<span class="countdown-cerrado">🔒 Cerrado</span>' : ''}
+        </div>
+      </div>`;
+    });
+
+    html += `</div></div>`;
+  });
+
+  html += `</div></div>`;
+  html += `<div class="elim-save-bar">
+    <button class="btn-guardar" id="btn-guardar-elim">GUARDAR PREDICCIONES</button>
+    <div class="save-status" id="elim-save-status"></div>
+  </div>`;
+
+  cont.innerHTML = html;
+
+  // Listeners inputs
+  cont.querySelectorAll(".elim-inp").forEach(inp => {
+    inp.addEventListener("input", () => {
+      const pid = inp.dataset.pid;
+      const lado = inp.dataset.lado;
+      const val = inp.value === "" ? null : parseInt(inp.value);
+      if (!elimPredsCache[pid]) elimPredsCache[pid] = { gl: null, gv: null };
+      elimPredsCache[pid][lado] = val;
+    });
+  });
+
+  document.getElementById("btn-guardar-elim").addEventListener("click", guardarElim);
+
+  // Iniciar countdowns
+  iniciarCountdowns();
+}
+
+// ============================================================
+// COUNTDOWNS
+// ============================================================
+function iniciarCountdowns() {
+  FIXTURE_ELIM.forEach(p => {
+    const datos = elimPartidosCache[p.id];
+    if (!datos || datos.cerrado) return;
+
+    const horaPartido = new Date(p.fechaISO);
+    const el = document.getElementById(`cd-${p.id}`);
+    if (!el) return;
+
+    const timer = setInterval(() => {
+      const ahora = ahoraReal();
+      const diff = horaPartido - ahora;
+
+      if (diff <= 0) {
+        clearInterval(timer);
+        el.innerHTML = '<span class="countdown-cerrado">🔒 Cerrando...</span>';
+        // Disparar cierre en Firebase
+        verificarCierresAutomaticos();
+        return;
+      }
+
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+
+      let txt = "";
+      if (d > 0) txt = `${d}d ${h}h ${m}m`;
+      else if (h > 0) txt = `${h}h ${m}m ${s}s`;
+      else txt = `${m}m ${s}s`;
+
+      const urgente = diff < 3600000; // menos de 1 hora
+      el.innerHTML = `<span class="${urgente ? 'countdown-urgente' : 'countdown-abierto'}">⏱ ${txt}</span>`;
+    }, 1000);
+
+    countdownTimers.push(timer);
+  });
+}
+
+// ============================================================
+// GUARDAR PREDICCIONES ELIMINATORIAS
+// ============================================================
+async function guardarElim() {
+  const btn = document.getElementById("btn-guardar-elim");
+  const status = document.getElementById("elim-save-status");
+  btn.disabled = true; btn.textContent = "GUARDANDO...";
+  const { doc, setDoc } = window._firebase;
+  try {
+    await setDoc(doc(window._db, "predicciones_elim", currentUser.id), elimPredsCache);
+    status.textContent = "✓ Predicciones guardadas";
+    toast("✓ Guardado");
+  } catch(e) {
+    status.style.color = "var(--rojo)";
+    status.textContent = "✗ Error al guardar.";
+    console.error(e);
+  } finally {
+    btn.disabled = false; btn.textContent = "GUARDAR PREDICCIONES";
+  }
+}
+
+// ============================================================
+// PREDICCIONES GRUPOS
+// ============================================================
+function estaAbierto() { return predAbiertoCache; }
+
 function renderPredicciones() {
   const cont = document.getElementById("predicciones-content");
   const abierto = estaAbierto();
@@ -786,18 +1264,13 @@ function renderPredicciones() {
   if (!abierto) {
     html += `<div class="banner-cerrado">
       <span class="icon">🔒</span>
-      <div>
-        <strong>Predicciones cerradas</strong>
-        <span>El Mundial comenzó. Podés ver tus predicciones y el ranking.</span>
-      </div>
+      <div><strong>Predicciones cerradas</strong>
+      <span>El Mundial comenzó. Podés ver tus predicciones y el ranking.</span></div>
     </div>`;
   }
 
   const grupos = {};
-  FIXTURE.forEach(p => {
-    if (!grupos[p.grupo]) grupos[p.grupo] = [];
-    grupos[p.grupo].push(p);
-  });
+  FIXTURE.forEach(p => { if (!grupos[p.grupo]) grupos[p.grupo] = []; grupos[p.grupo].push(p); });
 
   for (const [letra, partidos] of Object.entries(grupos)) {
     const equipos = GRUPOS[letra];
@@ -805,42 +1278,35 @@ function renderPredicciones() {
       <div class="grupo-header">
         <span class="grupo-label">GRUPO ${letra}</span>
         <span class="grupo-equipos">${equipos.map(e => `${getBandera(e)} ${e}`).join(" · ")}</span>
-      </div>
-      <div class="partidos-grid">`;
+      </div><div class="partidos-grid">`;
 
     partidos.forEach((p, pidx) => {
       const pred = prediccionesCache[p.id] || null;
       const real = resultadosCache[p.id] || null;
       const pts = calcularPuntos(pred, real);
       const completado = pred && pred.gl !== null && pred.gv !== null;
-
       let ptsBadge = "";
       if (pts === 5) ptsBadge = `<div class="punto-badge punto-5">5</div>`;
       else if (pts === 3) ptsBadge = `<div class="punto-badge punto-3">3</div>`;
       else if (pts === 0 && real) ptsBadge = `<div class="punto-badge punto-0">0</div>`;
       else ptsBadge = `<div class="punto-badge punto-pendiente"></div>`;
-
       const glVal = (completado && pred.gl !== undefined) ? pred.gl : "";
       const gvVal = (completado && pred.gv !== undefined) ? pred.gv : "";
       const readonly = !abierto ? "readonly" : "";
       const cardClass = completado ? "completado" : "";
       const delay = Math.min(pidx * 50, 300);
-
       html += `<div class="partido-card ${cardClass}" data-id="${p.id}" style="animation-delay:${delay}ms">
         ${ptsBadge}
         <span class="equipo-nombre">${getBandera(p.local)} ${p.local}</span>
         <div class="marcador-input">
-          <input type="number" class="gol-input" min="0" max="20"
-            data-pid="${p.id}" data-lado="gl" value="${glVal}" ${readonly} placeholder="–">
+          <input type="number" class="gol-input" min="0" max="20" data-pid="${p.id}" data-lado="gl" value="${glVal}" ${readonly} placeholder="–">
           <span class="gol-sep">:</span>
-          <input type="number" class="gol-input" min="0" max="20"
-            data-pid="${p.id}" data-lado="gv" value="${gvVal}" ${readonly} placeholder="–">
+          <input type="number" class="gol-input" min="0" max="20" data-pid="${p.id}" data-lado="gv" value="${gvVal}" ${readonly} placeholder="–">
         </div>
         <span class="equipo-nombre visitante">${getBandera(p.visitante)} ${p.visitante}</span>
         <span class="fecha-badge">F${p.fecha}</span>
       </div>`;
     });
-
     html += `</div></div>`;
   }
 
@@ -848,14 +1314,12 @@ function renderPredicciones() {
     html += `<button class="btn-guardar" id="btn-guardar-pred">GUARDAR PREDICCIONES</button>
              <div class="save-status" id="save-status"></div>`;
   }
-
   cont.innerHTML = html;
 
   if (abierto) {
     cont.querySelectorAll(".gol-input").forEach(inp => {
       inp.addEventListener("input", () => {
-        const pid = inp.dataset.pid;
-        const lado = inp.dataset.lado;
+        const pid = inp.dataset.pid, lado = inp.dataset.lado;
         const val = inp.value === "" ? null : parseInt(inp.value);
         if (!prediccionesCache[pid]) prediccionesCache[pid] = { gl: null, gv: null };
         prediccionesCache[pid][lado] = val;
@@ -872,38 +1336,28 @@ function renderPredicciones() {
 async function guardarPredicciones() {
   const btn = document.getElementById("btn-guardar-pred");
   const status = document.getElementById("save-status");
-  btn.disabled = true;
-  btn.textContent = "GUARDANDO...";
-  status.textContent = "";
-
-  const db = window._db;
+  btn.disabled = true; btn.textContent = "GUARDANDO...";
   const { doc, setDoc } = window._firebase;
-
   try {
-    await setDoc(doc(db, "predicciones", currentUser.id), prediccionesCache);
+    await setDoc(doc(window._db, "predicciones", currentUser.id), prediccionesCache);
     status.textContent = "✓ Predicciones guardadas correctamente";
     toast("✓ Guardado");
   } catch(e) {
     status.style.color = "var(--rojo)";
     status.textContent = "✗ Error al guardar. Intentá de nuevo.";
     console.error(e);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = "GUARDAR PREDICCIONES";
-  }
+  } finally { btn.disabled = false; btn.textContent = "GUARDAR PREDICCIONES"; }
 }
 
-// ---- RESULTADOS ----
+// ============================================================
+// RESULTADOS GRUPOS
+// ============================================================
 function renderResultados() {
   const cont = document.getElementById("resultados-content");
   let totalPts = 0, total5 = 0, total3 = 0, pendientes = 0;
   let html = "";
-
   const grupos = {};
-  FIXTURE.forEach(p => {
-    if (!grupos[p.grupo]) grupos[p.grupo] = [];
-    grupos[p.grupo].push(p);
-  });
+  FIXTURE.forEach(p => { if (!grupos[p.grupo]) grupos[p.grupo] = []; grupos[p.grupo].push(p); });
 
   for (const [letra, partidos] of Object.entries(grupos)) {
     let grupoHtml = "";
@@ -911,22 +1365,15 @@ function renderResultados() {
       const pred = prediccionesCache[p.id] || null;
       const real = resultadosCache[p.id] || null;
       const pts = calcularPuntos(pred, real);
-
-      if (pts !== null) {
-        totalPts += pts;
-        if (pts === 5) total5++;
-        if (pts === 3) total3++;
-      } else { pendientes++; }
-
+      if (pts !== null) { totalPts += pts; if(pts===5)total5++; if(pts===3)total3++; }
+      else pendientes++;
       const predTxt = pred && pred.gl !== null ? `${pred.gl}-${pred.gv}` : "–";
       const realTxt = real && real.gl !== null ? `${real.gl}-${real.gv}` : "?";
-
       let ptsBadge = "";
-      if (pts === 5) ptsBadge = `<div class="punto-badge punto-5">5</div>`;
-      else if (pts === 3) ptsBadge = `<div class="punto-badge punto-3">3</div>`;
-      else if (pts === 0 && real) ptsBadge = `<div class="punto-badge punto-0">0</div>`;
-      else ptsBadge = `<div class="punto-badge punto-pendiente" title="Sin resultado aún"></div>`;
-
+      if (pts===5) ptsBadge=`<div class="punto-badge punto-5">5</div>`;
+      else if(pts===3) ptsBadge=`<div class="punto-badge punto-3">3</div>`;
+      else if(pts===0&&real) ptsBadge=`<div class="punto-badge punto-0">0</div>`;
+      else ptsBadge=`<div class="punto-badge punto-pendiente" title="Sin resultado aún"></div>`;
       grupoHtml += `<div class="resultado-row">
         ${ptsBadge}
         <span class="res-local">${getBandera(p.local)} ${p.local}</span>
@@ -938,11 +1385,8 @@ function renderResultados() {
         <span class="res-visitante">${getBandera(p.visitante)} ${p.visitante}</span>
       </div>`;
     });
-
     html += `<div class="resultados-grupo">
-      <div class="grupo-header">
-        <span class="grupo-label">GRUPO ${letra}</span>
-      </div>
+      <div class="grupo-header"><span class="grupo-label">GRUPO ${letra}</span></div>
       ${grupoHtml}
     </div>`;
   }
@@ -958,107 +1402,175 @@ function renderResultados() {
     <div><div style="font-family:var(--titulo);font-size:2rem;color:var(--gris4)">${pendientes}</div>
       <div style="font-family:var(--cond);font-size:0.75rem;letter-spacing:2px;color:var(--gris4);text-transform:uppercase">Pendientes</div></div>
   </div>`;
-
   cont.innerHTML = resumen + html;
 }
 
-// ---- RANKING ----
-async function renderRanking() {
-  const cont = document.getElementById("ranking-content");
+// ============================================================
+// RANKING GRUPOS
+// ============================================================
+async function renderRankingGrupos() {
+  const cont = document.getElementById("ranking-grupos-content");
   cont.innerHTML = `<div class="spinner"></div>`;
-  const db = window._db;
   const { collection, getDocs } = window._firebase;
-
   try {
-    const predsSnap = await getDocs(collection(db, "predicciones"));
-    const usersSnap = await getDocs(collection(db, "usuarios"));
-
+    const [predsSnap, usersSnap] = await Promise.all([
+      getDocs(collection(window._db, "predicciones")),
+      getDocs(collection(window._db, "usuarios"))
+    ]);
     const usuarios = {};
-    usersSnap.forEach(d => {
-      const dat = d.data();
-      if (dat.activo !== false) usuarios[d.id] = dat.nombre || d.id;
-    });
-
+    usersSnap.forEach(d => { const dat=d.data(); if(dat.activo!==false) usuarios[d.id]=dat.nombre||d.id; });
     const ranking = [];
     predsSnap.forEach(d => {
       const uid = d.id;
       if (!usuarios[uid]) return;
       const preds = d.data();
-      let pts = 0, e5 = 0, e3 = 0;
+      let pts=0, e5=0, e3=0;
       FIXTURE.forEach(p => {
-        const pred = preds[p.id] || null;
-        const real = resultadosCache[p.id] || null;
-        const p_ = calcularPuntos(pred, real);
-        if (p_ !== null) { pts += p_; if (p_===5) e5++; if (p_===3) e3++; }
+        const pred=preds[p.id]||null, real=resultadosCache[p.id]||null;
+        const p_=calcularPuntos(pred,real);
+        if(p_!==null){pts+=p_; if(p_===5)e5++; if(p_===3)e3++;}
       });
-      ranking.push({ uid, nombre: usuarios[uid], pts, e5, e3 });
+      ranking.push({uid,nombre:usuarios[uid],pts,e5,e3});
     });
-
-    ranking.sort((a,b) => b.pts - a.pts || b.e5 - a.e5 || b.e3 - a.e3);
-
-    let html = `<div style="font-family:var(--cond);font-size:0.75rem;letter-spacing:2px;
-      color:var(--gris4);text-transform:uppercase;margin-bottom:16px;">
-      ${ranking.length} participantes · Actualizado en tiempo real
-    </div>
-    <table class="ranking-table">
-      <thead><tr>
-        <th>#</th><th>Jugador</th>
-        <th style="text-align:center">🥇</th>
-        <th style="text-align:center">✅</th>
-        <th style="text-align:right">Puntos</th>
-      </tr></thead><tbody>`;
-
-    ranking.forEach((r, idx) => {
-      const pos = idx + 1;
-      const posClass = pos===1?"top1":pos===2?"top2":pos===3?"top3":"";
-      const esYo = r.uid === currentUser.id ? "rank-yo" : "";
-      html += `<tr>
-        <td class="rank-pos ${posClass}">${pos}</td>
-        <td class="rank-nombre ${esYo}">${r.nombre}${r.uid===currentUser.id?' ◀':''}</td>
-        <td class="rank-5s">${r.e5 || '–'}</td>
-        <td class="rank-3s">${r.e3 || '–'}</td>
-        <td class="rank-pts">${r.pts}</td>
-      </tr>`;
-    });
-
-    html += `</tbody></table>`;
-    cont.innerHTML = html;
+    ranking.sort((a,b)=>b.pts-a.pts||b.e5-a.e5||b.e3-a.e3);
+    cont.innerHTML = renderTablaRanking(ranking, "Grupos");
   } catch(e) {
     cont.innerHTML = `<p style="color:var(--rojo);font-family:var(--cond)">Error cargando ranking.</p>`;
-    console.error(e);
   }
 }
 
-// ---- INIT ----
+// ============================================================
+// RANKING ELIMINATORIAS — empate = mismo puesto
+// ============================================================
+async function renderRankingElim() {
+  const cont = document.getElementById("ranking-elim-content");
+  cont.innerHTML = `<div class="spinner"></div>`;
+  const { collection, getDocs } = window._firebase;
+  try {
+    const [predsSnap, usersSnap] = await Promise.all([
+      getDocs(collection(window._db, "predicciones_elim")),
+      getDocs(collection(window._db, "usuarios"))
+    ]);
+    const usuarios = {};
+    usersSnap.forEach(d => { const dat=d.data(); if(dat.activo!==false) usuarios[d.id]=dat.nombre||d.id; });
+    const ranking = [];
+    predsSnap.forEach(d => {
+      const uid = d.id;
+      if (!usuarios[uid]) return;
+      const preds = d.data();
+      let pts=0, e5=0, e3=0;
+      FIXTURE_ELIM.forEach(p => {
+        const datos=elimPartidosCache[p.id];
+        if(!datos) return;
+        const real=(datos.gl_real!==undefined&&datos.gl_real!==null)?{gl:datos.gl_real,gv:datos.gv_real}:null;
+        const pred=preds[p.id]||null;
+        const p_=calcularPuntos(pred,real);
+        if(p_!==null){pts+=p_; if(p_===5)e5++; if(p_===3)e3++;}
+      });
+      ranking.push({uid,nombre:usuarios[uid],pts,e5,e3});
+    });
+
+    // Ordenar
+    ranking.sort((a,b)=>b.pts-a.pts||b.e5-a.e5);
+
+    // Asignar posiciones — empate = mismo puesto
+    let posActual = 1;
+    const rankingConPos = ranking.map((r, idx) => {
+      if (idx === 0) { r.pos = 1; return r; }
+      const prev = ranking[idx-1];
+      if (r.pts === prev.pts && r.e5 === prev.e5) {
+        r.pos = prev.pos; // mismo puesto
+      } else {
+        r.pos = idx + 1; // puesto real por cantidad de jugadores adelante
+      }
+      return r;
+    });
+
+    cont.innerHTML = renderTablaRankingElim(rankingConPos);
+  } catch(e) {
+    cont.innerHTML = `<p style="color:var(--rojo);font-family:var(--cond)">Error cargando ranking.</p>`;
+  }
+}
+
+function renderTablaRanking(ranking, titulo) {
+  let html = `<div style="font-family:var(--cond);font-size:0.75rem;letter-spacing:2px;
+    color:var(--gris4);text-transform:uppercase;margin-bottom:16px;">
+    Ranking ${titulo} · ${ranking.length} participantes
+  </div>
+  <table class="ranking-table">
+    <thead><tr>
+      <th>#</th><th>Jugador</th>
+      <th style="text-align:center">🥇</th>
+      <th style="text-align:center">✅</th>
+      <th style="text-align:right">Puntos</th>
+    </tr></thead><tbody>`;
+
+  ranking.forEach((r, idx) => {
+    const pos=idx+1;
+    const posClass=pos===1?"top1":pos===2?"top2":pos===3?"top3":"";
+    const esYo=r.uid===currentUser.id?"rank-yo":"";
+    html+=`<tr>
+      <td class="rank-pos ${posClass}">${pos}</td>
+      <td class="rank-nombre ${esYo}">${r.nombre}${r.uid===currentUser.id?' ◀':''}</td>
+      <td class="rank-5s">${r.e5||'–'}</td>
+      <td class="rank-3s">${r.e3||'–'}</td>
+      <td class="rank-pts">${r.pts}</td>
+    </tr>`;
+  });
+  return html + `</tbody></table>`;
+}
+
+function renderTablaRankingElim(ranking) {
+  let html = `<div style="font-family:var(--cond);font-size:0.75rem;letter-spacing:2px;
+    color:var(--gris4);text-transform:uppercase;margin-bottom:16px;">
+    Ranking Eliminatorias · ${ranking.length} participantes · Empate = mismo puesto
+  </div>
+  <table class="ranking-table">
+    <thead><tr>
+      <th>#</th><th>Jugador</th>
+      <th style="text-align:center">🥇</th>
+      <th style="text-align:center">✅</th>
+      <th style="text-align:right">Puntos</th>
+    </tr></thead><tbody>`;
+
+  ranking.forEach(r => {
+    const posClass=r.pos===1?"top1":r.pos===2?"top2":r.pos===3?"top3":"";
+    const esYo=r.uid===currentUser.id?"rank-yo":"";
+    html+=`<tr>
+      <td class="rank-pos ${posClass}">${r.pos}</td>
+      <td class="rank-nombre ${esYo}">${r.nombre}${r.uid===currentUser.id?' ◀':''}</td>
+      <td class="rank-5s">${r.e5||'–'}</td>
+      <td class="rank-3s">${r.e3||'–'}</td>
+      <td class="rank-pts">${r.pts}</td>
+    </tr>`;
+  });
+  return html + `</tbody></table>`;
+}
+
+// ============================================================
+// INIT
+// ============================================================
 document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll("nav.tabs a").forEach(a => {
-    a.addEventListener("click", e => {
-      e.preventDefault();
-      setTab(a.dataset.tab);
-    });
+    a.addEventListener("click", e => { e.preventDefault(); setTab(a.dataset.tab); });
   });
 
   document.getElementById("btn-logout").addEventListener("click", () => {
+    countdownTimers.forEach(t => clearInterval(t));
     currentUser = null;
     localStorage.removeItem("prode_user");
     location.reload();
   });
 
   ["inp-usuario","inp-pass"].forEach(id => {
-    document.getElementById(id).addEventListener("keydown", e => {
-      if (e.key === "Enter") doLogin();
-    });
+    document.getElementById(id).addEventListener("keydown", e => { if(e.key==="Enter") doLogin(); });
   });
-
   document.getElementById("btn-ingresar").addEventListener("click", doLogin);
 
   function doLogin() {
     const u = document.getElementById("inp-usuario").value;
     const p = document.getElementById("inp-pass").value;
-    if (!u || !p) {
-      document.getElementById("login-error").textContent = "Completá usuario y código.";
-      return;
-    }
+    if (!u||!p) { document.getElementById("login-error").textContent="Completá usuario y código."; return; }
     login(u, p);
   }
 
@@ -1072,13 +1584,12 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("login-screen").style.display = "none";
         document.getElementById("app").style.display = "block";
         document.getElementById("chip-usuario").textContent = u.nombre;
-        cargarDatos().then(() => setTab("predicciones"));
+        cargarDatos().then(() => setTab("eliminatorias"));
       };
       tryAutoLogin();
     } catch(e) { localStorage.removeItem("prode_user"); }
   }
 });
 </script>
-
 </body>
 </html>
