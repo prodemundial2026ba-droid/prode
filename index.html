@@ -1055,19 +1055,22 @@ async function cargarDatos() {
 function verificarCierresAutomaticos() {
   const ahora = ahoraReal();
   window.FIXTURE_ELIM.forEach(async (p) => {
-    const datos = elimPartidosCache[p.id];
-    // Si no hay datos pero el partido tiene equipos hardcodeados, inicializar
+    let datos = elimPartidosCache[p.id];
+    // Si no hay datos pero el partido tiene equipos, inicializar
     if (!datos) {
       if (!p.local && !p.visitante) return; // sin equipos = saltar
-      elimPartidosCache[p.id] = { cerrado: false };
+      datos = { cerrado: false, local: p.local, visitante: p.visitante };
+      elimPartidosCache[p.id] = datos;
     }
     if (datos.cerrado) return; // ya cerrado
-    const horaPartido = new Date(p.fechaISO);
+    const horaPartido = new Date(datos.fechaISO || p.fechaISO);
     if (ahora >= horaPartido) {
       // Llegó la hora — cerrar en Firebase
       const { doc, setDoc } = window._firebase;
       try {
         await setDoc(doc(window._db, "elim_partidos", p.id), { ...datos, cerrado: true });
+        elimPartidosCache[p.id] = { ...datos, cerrado: true };
+        console.log("Partido cerrado:", p.id);
       } catch(e) { console.error("Error cerrando partido", p.id, e); }
     }
   });
