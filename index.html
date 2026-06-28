@@ -599,7 +599,7 @@ main {
 
   <nav class="tabs">
     <ul>
-      <li><a href="#" class="active" data-tab="eliminatorias">⚡ Eliminatorias</a></li>
+      <li><a href="#" class="active" data-tab="eliminatorias">⚡ Elim. Directa</a></li>
       <li><a href="#" data-tab="predicciones">Mis Predicciones</a></li>
       <li><a href="#" data-tab="resultados">Mis Resultados</a></li>
       <li><a href="#" data-tab="ranking-grupos">Ranking Grupos</a></li>
@@ -1218,7 +1218,7 @@ function iniciarCountdowns() {
     const datos = elimPartidosCache[p.id];
     if (!datos || datos.cerrado) return;
 
-    const horaPartido = new Date(p.fechaISO);
+    const horaPartido = new Date(datos.fechaISO || p.fechaISO);
     const el = document.getElementById(`cd-${p.id}`);
     if (!el) return;
 
