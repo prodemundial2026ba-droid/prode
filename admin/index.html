@@ -125,6 +125,12 @@ input:focus{border-color:var(--verde);}
 .btn-guardar-elim-card{background:var(--verde);color:var(--negro);border:none;border-radius:6px;padding:7px 16px;font-family:'Bebas Neue',cursive;font-size:0.95rem;letter-spacing:1px;cursor:pointer;transition:background .2s;white-space:nowrap;}
 .btn-guardar-elim-card:hover{background:var(--verde2);}
 .elim-save-ok{color:var(--verde);font-family:'Barlow Condensed',sans-serif;font-size:0.8rem;margin-top:6px;}
+.elim-hora-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--gris3);}
+.elim-hora-row label{font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;letter-spacing:1px;text-transform:uppercase;color:var(--gris4);white-space:nowrap;}
+.elim-hora-inp{background:var(--gris2);border:1px solid var(--gris3);border-radius:6px;padding:7px 12px;color:var(--blanco);font-family:'Barlow Condensed',sans-serif;font-size:0.88rem;outline:none;flex:1;min-width:180px;}
+.elim-hora-inp:focus{border-color:var(--verde);}
+.btn-reset-elim{background:var(--gris3);color:var(--blanco);border:none;border-radius:6px;padding:7px 14px;font-family:'Bebas Neue',cursive;font-size:0.9rem;letter-spacing:1px;cursor:pointer;transition:background .2s;white-space:nowrap;}
+.btn-reset-elim:hover{background:var(--naranja);}
 </style>
 </head>
 <body>
@@ -562,9 +568,28 @@ async function cargarEliminatorias() {
   } catch(e) { console.error(e); }
 }
 
+function horaLocalToISO(horaLocal) {
+  // Convierte "2026-07-03T19:00" (datetime-local) a ISO con -03:00
+  return horaLocal + ":00-03:00";
+}
+
+function isoToDatetimeLocal(iso) {
+  // Convierte ISO a formato para input datetime-local
+  const d = new Date(iso);
+  const pad = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 function renderEliminatorias() {
   const cont = document.getElementById("elim-admin-cont");
-  let html = "";
+  let html = `<div style="font-family:'Barlow Condensed',sans-serif;font-size:0.82rem;color:var(--gris4);
+    margin-bottom:20px;background:var(--gris2);border-radius:8px;padding:12px 16px;border-left:3px solid var(--oro);">
+    <strong style="color:var(--oro)">TIP PARA PRUEBAS:</strong> 
+    Podés cambiar la hora de cierre de cualquier partido a un minuto en el futuro y guardar — 
+    cuando llegue ese momento el partido se cierra automáticamente para todos los jugadores.
+    Usá el botón 🔓 para reabrir un partido cerrado.
+  </div>`;
+  
   const faseActual = {};
   FASES_ORDEN.forEach(f => { faseActual[f] = []; });
   FIXTURE_ELIM.forEach(p => { faseActual[p.fase].push(p); });
@@ -575,7 +600,6 @@ function renderEliminatorias() {
     partidos.forEach(p => {
       const datos = elimCache[p.id] || {};
       const cerrado = datos.cerrado || false;
-      // Precargar con equipos del fixture si los tiene
       const local = datos.local || p.local || "";
       const visitante = datos.visitante || p.visitante || "";
       const glReal = datos.gl_real !== undefined && datos.gl_real !== null ? datos.gl_real : "";
@@ -584,33 +608,44 @@ function renderEliminatorias() {
       const cardClass = !tieneEquipos ? "sin-equipos" : cerrado ? "cerrado" : "abierto";
       const estadoTxt = !tieneEquipos ? "Sin equipos" : cerrado ? "🔒 Cerrado" : "🟢 Abierto";
       const estadoClass = cerrado || !tieneEquipos ? "cerrado" : "abierto";
-      const horaPartido = new Date(p.fechaISO);
+      // Hora: usar la guardada en Firebase si existe, sino la del fixture
+      const fechaActual = datos.fechaISO || p.fechaISO;
+      const dtLocal = isoToDatetimeLocal(fechaActual);
+      const horaPartido = new Date(fechaActual);
       const horaStr = horaPartido.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit'}) + 
-                      ' ' + horaPartido.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}) + 'hs ARG';
+                      ' ' + horaPartido.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}) + 'hs';
 
       html += `<div class="elim-admin-card ${cardClass}" id="card-${p.id}">
         <div class="elim-card-header">
-          <span class="elim-card-label">Partido ${p.num} · ${horaStr}</span>
-          <span class="elim-card-estado ${estadoClass}">${estadoTxt}</span>
+          <span class="elim-card-label">${FASES_LABELS[fase]} · P${p.num}</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="elim-card-estado ${estadoClass}">${estadoTxt}</span>
+            ${cerrado ? `<button class="btn-reset-elim" onclick="reabrirPartido('${p.id}')">🔓 Reabrir</button>` : ''}
+          </div>
         </div>
         <div class="elim-equipos-row">
           <div class="elim-field">
             <label>Local</label>
-            <input type="text" id="local-${p.id}" value="${local}" placeholder="Equipo local" ${cerrado?'readonly':''}>
+            <input type="text" id="local-${p.id}" value="${local}" placeholder="Equipo local">
           </div>
           <div class="elim-field">
             <label>Visitante</label>
-            <input type="text" id="vis-${p.id}" value="${visitante}" placeholder="Equipo visitante" ${cerrado?'readonly':''}>
+            <input type="text" id="vis-${p.id}" value="${visitante}" placeholder="Equipo visitante">
           </div>
         </div>
         <div class="elim-resultado-row">
-          <label>Resultado real:</label>
+          <label>Resultado (90min):</label>
           <input type="number" class="elim-gol ${glReal!==''?'ok':''}" id="gl-${p.id}" 
             value="${glReal}" placeholder="–" min="0" max="20">
           <span style="font-family:'Bebas Neue',cursive;color:var(--gris4)">:</span>
           <input type="number" class="elim-gol ${gvReal!==''?'ok':''}" id="gv-${p.id}" 
             value="${gvReal}" placeholder="–" min="0" max="20">
           <button class="btn-guardar-elim-card" onclick="guardarPartidoElim('${p.id}')">GUARDAR</button>
+        </div>
+        <div class="elim-hora-row">
+          <label>⏱ Cierre automático:</label>
+          <input type="datetime-local" class="elim-hora-inp" id="hora-${p.id}" value="${dtLocal}">
+          <button class="btn-guardar-elim-card" onclick="guardarHoraElim('${p.id}')">ACTUALIZAR HORA</button>
         </div>
         <div id="status-${p.id}" class="elim-save-ok" style="display:none">✓ Guardado</div>
       </div>`;
@@ -619,13 +654,11 @@ function renderEliminatorias() {
   });
   cont.innerHTML = html;
 
-  // Listeners para marcar ok en goles
+  // Listeners goles
   FIXTURE_ELIM.forEach(p => {
     ['gl','gv'].forEach(lado => {
       const inp = document.getElementById(`${lado}-${p.id}`);
-      if (inp) inp.addEventListener('input', () => {
-        inp.classList.toggle('ok', inp.value !== '');
-      });
+      if (inp) inp.addEventListener('input', () => inp.classList.toggle('ok', inp.value !== ''));
     });
   });
 }
@@ -661,6 +694,37 @@ window.guardarPartidoElim = async (pid) => {
     toast("✗ Error al guardar");
     console.error(e);
   }
+};
+
+window.guardarHoraElim = async (pid) => {
+  const {doc, setDoc} = window._fb;
+  const horaInp = document.getElementById(`hora-${pid}`).value;
+  if (!horaInp) { toast("Ingresá una fecha/hora válida"); return; }
+  const fechaISO = horaLocalToISO(horaInp);
+  const existing = elimCache[pid] || {};
+  const datos = { ...existing, fechaISO };
+  try {
+    await setDoc(doc(window._db, "elim_partidos", pid), datos);
+    elimCache[pid] = datos;
+    const st = document.getElementById(`status-${pid}`);
+    st.textContent = "✓ Hora actualizada — el countdown se actualizará en los navegadores";
+    st.style.display = "block";
+    setTimeout(() => { st.style.display = "none"; }, 3000);
+    toast(`✓ Hora actualizada para ${pid}`);
+  } catch(e) { toast("✗ Error al actualizar hora"); console.error(e); }
+};
+
+window.reabrirPartido = async (pid) => {
+  const {doc, setDoc} = window._fb;
+  const existing = elimCache[pid] || {};
+  const datos = { ...existing, cerrado: false };
+  try {
+    await setDoc(doc(window._db, "elim_partidos", pid), datos);
+    elimCache[pid] = datos;
+    toast(`🔓 Partido ${pid} reabierto`);
+    await cargarEliminatorias();
+    renderEliminatorias();
+  } catch(e) { toast("✗ Error al reabrir"); console.error(e); }
 };
 
 document.querySelectorAll(".tab-btn").forEach(btn => {
