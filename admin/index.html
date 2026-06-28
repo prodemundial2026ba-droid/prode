@@ -335,7 +335,7 @@ async function cargarResultados() {
   resultadosCache = snap.exists() ? snap.data() : {};
 }
 
-function renderGridResultados() {
+window.renderGridResultados = function renderGridResultados() {
   const cont = document.getElementById("res-grid-cont");
   let html = "";
   const grupos = {};
@@ -393,7 +393,7 @@ async function guardarResultados() {
 }
 
 // ---- CONTROL PREDICCIONES ----
-async function cargarEstadoPredicciones() {
+async window.cargarEstadoPredicciones = async function cargarEstadoPredicciones() {
   const {doc, getDoc} = window._fb;
   try {
     const snap = await getDoc(doc(window._db, "config", "predicciones"));
@@ -421,7 +421,7 @@ async function setEstadoPredicciones(abierto) {
 }
 
 // ---- EXPORTAR ----
-async function cargarStatsExport() {
+async window.cargarStatsExport = async function cargarStatsExport() {
   const {collection, getDocs} = window._fb;
   const [predsSnap, usersSnap] = await Promise.all([
     getDocs(collection(window._db, "predicciones")),
@@ -504,7 +504,7 @@ async function exportarExcel() {
 }
 
 // ---- USUARIOS ----
-async function cargarUsuarios() {
+async window.cargarUsuarios = async function cargarUsuarios() {
   const {collection, getDocs} = window._fb;
   const snap = await getDocs(collection(window._db, "usuarios"));
   const cont = document.getElementById("users-list");
@@ -560,7 +560,7 @@ window.toggleUser = async (uid, activo) => {
 // ---- ELIMINATORIAS ADMIN ----
 let elimCache = {}; // datos actuales de cada partido
 
-async function cargarEliminatorias() {
+async window.cargarEliminatorias = async function cargarEliminatorias() {
   const {collection, getDocs} = window._fb;
   try {
     const snap = await getDocs(collection(window._db, "elim_partidos"));
@@ -568,19 +568,19 @@ async function cargarEliminatorias() {
   } catch(e) { console.error(e); }
 }
 
-function horaLocalToISO(horaLocal) {
+window.horaLocalToISO = function horaLocalToISO(horaLocal) {
   // Convierte "2026-07-03T19:00" (datetime-local) a ISO con -03:00
   return horaLocal + ":00-03:00";
 }
 
-function isoToDatetimeLocal(iso) {
+window.isoToDatetimeLocal = function isoToDatetimeLocal(iso) {
   // Convierte ISO a formato para input datetime-local
   const d = new Date(iso);
   const pad = n => String(n).padStart(2,'0');
   return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-function renderEliminatorias() {
+window.renderEliminatorias = function renderEliminatorias() {
   const cont = document.getElementById("elim-admin-cont");
   let html = `<div style="font-family:'Barlow Condensed',sans-serif;font-size:0.82rem;color:var(--gris4);
     margin-bottom:20px;background:var(--gris2);border-radius:8px;padding:12px 16px;border-left:3px solid var(--oro);">
