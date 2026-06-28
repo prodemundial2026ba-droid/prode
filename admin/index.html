@@ -581,6 +581,7 @@ window.isoToDatetimeLocal = function isoToDatetimeLocal(iso) {
 }
 
 window.renderEliminatorias = function renderEliminatorias() {
+  console.log("renderEliminatorias llamado, FIXTURE_ELIM length:", FIXTURE_ELIM.length, "elimCache keys:", Object.keys(elimCache).length);
   const cont = document.getElementById("elim-admin-cont");
   let html = `<div style="font-family:'Barlow Condensed',sans-serif;font-size:0.82rem;color:var(--gris4);
     margin-bottom:20px;background:var(--gris2);border-radius:8px;padding:12px 16px;border-left:3px solid var(--oro);">
@@ -590,13 +591,15 @@ window.renderEliminatorias = function renderEliminatorias() {
     Usá el botón 🔓 para reabrir un partido cerrado.
   </div>`;
   
+  const _FASES_ORDEN = ["16avos","octavos","cuartos","semis","tercero","final"];
+  const _FASES_LABELS = {"16avos":"16avos de Final","octavos":"Octavos de Final","cuartos":"Cuartos de Final","semis":"Semifinales","tercero":"3er Puesto","final":"Final"};
   const faseActual = {};
-  FASES_ORDEN.forEach(f => { faseActual[f] = []; });
+  _FASES_ORDEN.forEach(f => { faseActual[f] = []; });
   FIXTURE_ELIM.forEach(p => { faseActual[p.fase].push(p); });
 
-  FASES_ORDEN.forEach(fase => {
+  _FASES_ORDEN.forEach(fase => {
     const partidos = faseActual[fase];
-    html += `<div class="elim-fase-title">${FASES_LABELS[fase]}</div><div class="elim-admin-grid">`;
+    html += `<div class="elim-fase-title">${_FASES_LABELS[fase]}</div><div class="elim-admin-grid">`;
     partidos.forEach(p => {
       const datos = elimCache[p.id] || {};
       const cerrado = datos.cerrado || false;
