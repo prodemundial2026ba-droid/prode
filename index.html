@@ -935,17 +935,38 @@ function setTab(name) {
 // HORA DEL SERVIDOR — worldtimeapi.org (hora Buenos Aires)
 // ============================================================
 async function obtenerHoraServidor() {
-  try {
-    const res = await fetch("https://worldtimeapi.org/api/timezone/America/Argentina/Buenos_Aires");
-    const data = await res.json();
-    const horaReal = new Date(data.datetime);
-    const horaLocal = new Date();
-    // offset en ms entre hora real y local del navegador
-    horaServidor = horaReal.getTime() - horaLocal.getTime();
-  } catch(e) {
-    console.warn("worldtimeapi no disponible, usando hora local");
-    horaServidor = 0;
+  // Intentar múltiples APIs de hora en orden
+  const apis = [
+    async () => {
+      const r = await fetch("https://timeapi.io/api/time/current/zone?timeZone=America%2FArgentina%2FBuenos_Aires", {signal: AbortSignal.timeout(4000)});
+      const d = await r.json();
+      return new Date(d.dateTime);
+    },
+    async () => {
+      const r = await fetch("https://worldtimeapi.org/api/timezone/America/Argentina/Buenos_Aires", {signal: AbortSignal.timeout(4000)});
+      const d = await r.json();
+      return new Date(d.datetime);
+    },
+    async () => {
+      // Fallback: usar hora de Firebase como referencia
+      const r = await fetch("https://firestore.googleapis.com/v1/projects/prode-vaquita-2026/databases/(default)/documents/config/hora", {signal: AbortSignal.timeout(4000)});
+      return new Date(); // si falla todo, hora local
+    }
+  ];
+
+  for (const api of apis) {
+    try {
+      const horaReal = await api();
+      const horaLocal = new Date();
+      horaServidor = horaReal.getTime() - horaLocal.getTime();
+      console.log("Hora servidor obtenida, offset:", horaServidor, "ms");
+      return;
+    } catch(e) {
+      continue;
+    }
   }
+  console.warn("Todas las APIs de hora fallaron, usando hora local");
+  horaServidor = 0;
 }
 
 function ahoraReal() {
@@ -988,6 +1009,10 @@ async function cargarDatos() {
 
   // Hora del servidor (para countdowns)
   await obtenerHoraServidor();
+  // Refrescar hora del servidor cada 5 minutos
+  setInterval(obtenerHoraServidor, 5 * 60 * 1000);
+  // Verificar cierres automáticos cada 30 segundos (por si el onSnapshot llega tarde)
+  setInterval(verificarCierresAutomaticos, 30 * 1000);
 
   // Predicciones grupos
   const pSnap = await getDoc(doc(db, "predicciones", currentUser.id));
