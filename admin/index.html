@@ -393,7 +393,7 @@ async function guardarResultados() {
 }
 
 // ---- CONTROL PREDICCIONES ----
-async window.cargarEstadoPredicciones = async function cargarEstadoPredicciones() {
+window.cargarEstadoPredicciones = async function cargarEstadoPredicciones() {
   const {doc, getDoc} = window._fb;
   try {
     const snap = await getDoc(doc(window._db, "config", "predicciones"));
@@ -421,7 +421,7 @@ async function setEstadoPredicciones(abierto) {
 }
 
 // ---- EXPORTAR ----
-async window.cargarStatsExport = async function cargarStatsExport() {
+window.cargarStatsExport = async function cargarStatsExport() {
   const {collection, getDocs} = window._fb;
   const [predsSnap, usersSnap] = await Promise.all([
     getDocs(collection(window._db, "predicciones")),
@@ -504,7 +504,7 @@ async function exportarExcel() {
 }
 
 // ---- USUARIOS ----
-async window.cargarUsuarios = async function cargarUsuarios() {
+window.cargarUsuarios = async function cargarUsuarios() {
   const {collection, getDocs} = window._fb;
   const snap = await getDocs(collection(window._db, "usuarios"));
   const cont = document.getElementById("users-list");
@@ -560,7 +560,7 @@ window.toggleUser = async (uid, activo) => {
 // ---- ELIMINATORIAS ADMIN ----
 let elimCache = {}; // datos actuales de cada partido
 
-async window.cargarEliminatorias = async function cargarEliminatorias() {
+window.cargarEliminatorias = async function cargarEliminatorias() {
   const {collection, getDocs} = window._fb;
   try {
     const snap = await getDocs(collection(window._db, "elim_partidos"));
