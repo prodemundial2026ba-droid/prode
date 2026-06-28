@@ -583,6 +583,7 @@ window.isoToDatetimeLocal = function isoToDatetimeLocal(iso) {
 window.renderEliminatorias = function renderEliminatorias() {
   console.log("renderEliminatorias llamado, FIXTURE_ELIM length:", FIXTURE_ELIM.length, "elimCache keys:", Object.keys(elimCache).length);
   const cont = document.getElementById("elim-admin-cont");
+  if (!cont) { console.error("NO SE ENCONTRÓ elim-admin-cont"); return; }
   let html = `<div style="font-family:'Barlow Condensed',sans-serif;font-size:0.82rem;color:var(--gris4);
     margin-bottom:20px;background:var(--gris2);border-radius:8px;padding:12px 16px;border-left:3px solid var(--oro);">
     <strong style="color:var(--oro)">TIP PARA PRUEBAS:</strong> 
@@ -597,8 +598,10 @@ window.renderEliminatorias = function renderEliminatorias() {
   _FASES_ORDEN.forEach(f => { faseActual[f] = []; });
   FIXTURE_ELIM.forEach(p => { faseActual[p.fase].push(p); });
 
+  console.log("faseActual:", JSON.stringify(Object.keys(faseActual).map(k => k+":"+faseActual[k].length)));
   _FASES_ORDEN.forEach(fase => {
     const partidos = faseActual[fase];
+    console.log("Procesando fase:", fase, "partidos:", partidos.length);
     html += `<div class="elim-fase-title">${_FASES_LABELS[fase]}</div><div class="elim-admin-grid">`;
     partidos.forEach(p => {
       const datos = elimCache[p.id] || {};
@@ -655,7 +658,9 @@ window.renderEliminatorias = function renderEliminatorias() {
     });
     html += "</div>";
   });
+  console.log("HTML generado, longitud:", html.length);
   cont.innerHTML = html;
+  console.log("innerHTML asignado");
 
   // Listeners goles
   FIXTURE_ELIM.forEach(p => {
