@@ -776,7 +776,7 @@ main {
 
 <!-- FIXTURE GRUPOS + DATOS ELIMINATORIAS -->
 <script>
-const GRUPOS = {
+window.GRUPOS = {
   A: ["México","Corea del Sur","Sudáfrica","Rep. Checa"],
   B: ["Canadá","Suiza","Qatar","Bosnia y Herzegovina"],
   C: ["Brasil","Marruecos","Escocia","Haití"],
@@ -791,7 +791,7 @@ const GRUPOS = {
   L: ["Inglaterra","Croacia","Panamá","Ghana"]
 };
 
-const FLAG_CODES = {
+window.FLAG_CODES = {
   "México":"mx","Corea del Sur":"kr","Sudáfrica":"za","Rep. Checa":"cz",
   "Canadá":"ca","Suiza":"ch","Qatar":"qa","Bosnia y Herzegovina":"ba",
   "Brasil":"br","Marruecos":"ma","Escocia":"gb-sct","Haití":"ht",
@@ -814,7 +814,7 @@ function getBandera(pais) {
   return `<img src="https://flagcdn.com/20x15/${code}.png" srcset="https://flagcdn.com/40x30/${code}.png 2x" width="20" height="15" alt="${pais}" style="vertical-align:middle;border-radius:2px;margin-right:2px;">`;
 }
 
-const BANDERAS = FLAG_CODES;
+window.BANDERAS = FLAG_CODES;
 
 function generarFixture() {
   const fixture = [];
@@ -828,7 +828,7 @@ function generarFixture() {
   }
   return fixture;
 }
-const FIXTURE = generarFixture();
+window.FIXTURE = generarFixture();
 
 function calcularPuntos(pred, real) {
   if (!real || real.gl === null || real.gv === null) return null;
@@ -845,7 +845,7 @@ function calcularPuntos(pred, real) {
 // Los partidos se muestran cuando el admin carga los equipos
 // El cierre se hace automáticamente via Firebase al llegar la hora
 // =====================================================
-const FIXTURE_ELIM = [
+window.FIXTURE_ELIM = [
   {id:"R32_01",fase:"16avos",num:1,local:"Sudáfrica",visitante:"Canadá",fechaISO:"2026-06-28T16:00:00-03:00"},
   {id:"R32_02",fase:"16avos",num:2,local:"Brasil",visitante:"Japón",fechaISO:"2026-06-29T14:00:00-03:00"},
   {id:"R32_03",fase:"16avos",num:3,local:"Alemania",visitante:"Paraguay",fechaISO:"2026-06-29T17:30:00-03:00"},
@@ -879,19 +879,10 @@ const FIXTURE_ELIM = [
   {id:"TP_01",fase:"tercero",num:1,local:"",visitante:"",fechaISO:"2026-07-18T18:00:00-03:00"},
   {id:"FN_01",fase:"final",num:1,local:"",visitante:"",fechaISO:"2026-07-19T16:00:00-03:00"},
 ];
-const FASES_LABELS={"16avos":"16avos de Final","octavos":"Octavos de Final","cuartos":"Cuartos de Final","semis":"Semifinales","tercero":"3er Puesto","final":"Final"};
-const FASES_ORDEN=["16avos","octavos","cuartos","semis","tercero","final"];
+window.FASES_LABELS={"16avos":"16avos de Final","octavos":"Octavos de Final","cuartos":"Cuartos de Final","semis":"Semifinales","tercero":"3er Puesto","final":"Final"};
+window.FASES_ORDEN=["16avos","octavos","cuartos","semis","tercero","final"];
 
-const FASES_LABELS = {
-  "16avos": "16avos de Final",
-  "octavos": "Octavos de Final",
-  "cuartos": "Cuartos de Final",
-  "semis": "Semifinales",
-  "tercero": "3er Puesto",
-  "final": "Final"
-};
 
-const FASES_ORDEN = ["16avos","octavos","cuartos","semis","tercero","final"];
 </script>
 
 <!-- LÓGICA PRINCIPAL -->
@@ -1033,7 +1024,7 @@ async function cargarDatos() {
 // ============================================================
 function verificarCierresAutomaticos() {
   const ahora = ahoraReal();
-  FIXTURE_ELIM.forEach(async (p) => {
+  window.FIXTURE_ELIM.forEach(async (p) => {
     const datos = elimPartidosCache[p.id];
     // Si no hay datos pero el partido tiene equipos hardcodeados, inicializar
     if (!datos) {
@@ -1064,12 +1055,12 @@ function renderEliminatorias() {
 
   // Agrupar por fase
   const fases = {};
-  FASES_ORDEN.forEach(f => { fases[f] = []; });
-  FIXTURE_ELIM.forEach(p => { fases[p.fase].push(p); });
+  window.FASES_ORDEN.forEach(f => { fases[f] = []; });
+  window.FIXTURE_ELIM.forEach(p => { fases[p.fase].push(p); });
 
   // Ver si hay algún partido disponible
   // Hay partidos si alguno tiene equipos (en fixture o en Firebase)
-  const hayPartidos = FIXTURE_ELIM.some(p => p.local || elimPartidosCache[p.id]);
+  const hayPartidos = window.FIXTURE_ELIM.some(p => p.local || elimPartidosCache[p.id]);
   if (!hayPartidos) {
     cont.innerHTML = `<div class="elim-empty">
       <div class="icon">⏳</div>
@@ -1087,9 +1078,9 @@ function renderEliminatorias() {
   </div>
   <div class="bracket-wrap"><div class="bracket">`;
 
-  FASES_ORDEN.forEach((fase, fi) => {
+  window.FASES_ORDEN.forEach((fase, fi) => {
     const partidos = fases[fase];
-    const label = FASES_LABELS[fase];
+    const label = window.FASES_LABELS[fase];
     const disponibles = partidos.filter(p => elimPartidosCache[p.id]);
     if (disponibles.length === 0) return;
 
@@ -1198,7 +1189,7 @@ function renderEliminatorias() {
 // COUNTDOWNS
 // ============================================================
 function iniciarCountdowns() {
-  FIXTURE_ELIM.forEach(p => {
+  window.FIXTURE_ELIM.forEach(p => {
     const datos = elimPartidosCache[p.id];
     if (!datos || datos.cerrado) return;
 
@@ -1258,7 +1249,7 @@ async function guardarElim() {
 }
 
 // ============================================================
-// PREDICCIONES GRUPOS
+// PREDICCIONES window.GRUPOS
 // ============================================================
 function estaAbierto() { return predAbiertoCache; }
 
@@ -1276,10 +1267,10 @@ function renderPredicciones() {
   }
 
   const grupos = {};
-  FIXTURE.forEach(p => { if (!grupos[p.grupo]) grupos[p.grupo] = []; grupos[p.grupo].push(p); });
+  window.FIXTURE.forEach(p => { if (!grupos[p.grupo]) grupos[p.grupo] = []; grupos[p.grupo].push(p); });
 
   for (const [letra, partidos] of Object.entries(grupos)) {
-    const equipos = GRUPOS[letra];
+    const equipos = window.GRUPOS[letra];
     html += `<div class="grupo-section">
       <div class="grupo-header">
         <span class="grupo-label">GRUPO ${letra}</span>
@@ -1356,14 +1347,14 @@ async function guardarPredicciones() {
 }
 
 // ============================================================
-// RESULTADOS GRUPOS
+// RESULTADOS window.GRUPOS
 // ============================================================
 function renderResultados() {
   const cont = document.getElementById("resultados-content");
   let totalPts = 0, total5 = 0, total3 = 0, pendientes = 0;
   let html = "";
   const grupos = {};
-  FIXTURE.forEach(p => { if (!grupos[p.grupo]) grupos[p.grupo] = []; grupos[p.grupo].push(p); });
+  window.FIXTURE.forEach(p => { if (!grupos[p.grupo]) grupos[p.grupo] = []; grupos[p.grupo].push(p); });
 
   for (const [letra, partidos] of Object.entries(grupos)) {
     let grupoHtml = "";
@@ -1412,7 +1403,7 @@ function renderResultados() {
 }
 
 // ============================================================
-// RANKING GRUPOS
+// RANKING window.GRUPOS
 // ============================================================
 async function renderRankingGrupos() {
   const cont = document.getElementById("ranking-grupos-content");
@@ -1431,7 +1422,7 @@ async function renderRankingGrupos() {
       if (!usuarios[uid]) return;
       const preds = d.data();
       let pts=0, e5=0, e3=0;
-      FIXTURE.forEach(p => {
+      window.FIXTURE.forEach(p => {
         const pred=preds[p.id]||null, real=resultadosCache[p.id]||null;
         const p_=calcularPuntos(pred,real);
         if(p_!==null){pts+=p_; if(p_===5)e5++; if(p_===3)e3++;}
@@ -1465,7 +1456,7 @@ async function renderRankingElim() {
       if (!usuarios[uid]) return;
       const preds = d.data();
       let pts=0, e5=0, e3=0;
-      FIXTURE_ELIM.forEach(p => {
+      window.FIXTURE_ELIM.forEach(p => {
         const datos=elimPartidosCache[p.id];
         if(!datos) return;
         const real=(datos.gl_real!==undefined&&datos.gl_real!==null)?{gl:datos.gl_real,gv:datos.gv_real}:null;
