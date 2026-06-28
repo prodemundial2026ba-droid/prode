@@ -105,7 +105,7 @@ input:focus{border-color:var(--verde);}
 .elim-admin-card{background:var(--gris1);border:1px solid var(--gris3);border-radius:10px;padding:16px 20px;}
 .elim-admin-card.cerrado{opacity:0.6;border-left:3px solid var(--gris3);}
 .elim-admin-card.abierto{border-left:3px solid var(--verde);}
-.elim-admin-card.sin-equipos{border-left:3px solid var(--gris4);opacity:0.5;}
+.elim-admin-card.sin-equipos{border-left:3px solid var(--gris4);opacity:0.7;}
 .elim-fase-title{font-family:'Bebas Neue',cursive;font-size:1.4rem;color:var(--verde);margin:24px 0 10px;letter-spacing:2px;}
 .elim-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
 .elim-card-label{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.9rem;color:var(--blanco);}
@@ -153,7 +153,7 @@ input:focus{border-color:var(--verde);}
     <button class="tab-btn" data-tab="usuarios">Usuarios</button>
     <button class="tab-btn" data-tab="exportar">📥 Exportar</button>
     <button class="tab-btn" data-tab="config">⚙ Config</button>
-    <button class="tab-btn" data-tab="eliminatorias">⚡ Eliminatorias</button>
+    <button class="tab-btn" data-tab="eliminatorias">⚡ Elim. Directa</button>
   </div>
 
   <!-- TAB: RESULTADOS -->
@@ -590,7 +590,7 @@ window.renderEliminatorias = function renderEliminatorias() {
     Usá el botón 🔓 para reabrir un partido cerrado.
   </div>`;
   
-  const _FASES_ORDEN = ["16avos","octavos","cuartos","semis","tercero","final"];
+  const _FASES_ORDEN = ["final","tercero","semis","cuartos","octavos","16avos"];
   const _FASES_LABELS = {"16avos":"16avos de Final","octavos":"Octavos de Final","cuartos":"Cuartos de Final","semis":"Semifinales","tercero":"3er Puesto","final":"Final"};
   const faseActual = {};
   _FASES_ORDEN.forEach(f => { faseActual[f] = []; });
