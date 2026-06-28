@@ -637,13 +637,16 @@ window.renderEliminatorias = function renderEliminatorias() {
             <input type="text" id="vis-${p.id}" value="${visitante}" placeholder="Equipo visitante">
           </div>
         </div>
-        <div class="elim-resultado-row">
-          <label>Resultado (90min):</label>
-          <input type="number" class="elim-gol ${glReal!==''?'ok':''}" id="gl-${p.id}" 
-            value="${glReal}" placeholder="–" min="0" max="20">
-          <span style="font-family:'Bebas Neue',cursive;color:var(--gris4)">:</span>
-          <input type="number" class="elim-gol ${gvReal!==''?'ok':''}" id="gv-${p.id}" 
-            value="${gvReal}" placeholder="–" min="0" max="20">
+        <div style="margin-bottom:12px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;letter-spacing:1px;text-transform:uppercase;color:var(--gris4);margin-bottom:8px;">Resultado real (90 min)</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;color:var(--blanco);min-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${local||'Local'}</span>
+            <input type="number" class="elim-gol ${glReal!==''?'ok':''}" id="gl-${p.id}" value="${glReal}" placeholder="–" min="0" max="20">
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;color:var(--blanco);min-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${visitante||'Visitante'}</span>
+            <input type="number" class="elim-gol ${gvReal!==''?'ok':''}" id="gv-${p.id}" value="${gvReal}" placeholder="–" min="0" max="20">
+          </div>
           <button class="btn-guardar-elim-card" onclick="guardarPartidoElim('${p.id}')">GUARDAR</button>
         </div>
         <div class="elim-hora-row">
