@@ -846,45 +846,41 @@ function calcularPuntos(pred, real) {
 // El cierre se hace automáticamente via Firebase al llegar la hora
 // =====================================================
 const FIXTURE_ELIM = [
-  // 16AVOS (Round of 32) — 28 Jun al 3 Jul
-  { id:"R32_01", fase:"16avos", num:1, fechaISO:"2026-06-28T16:00:00-03:00" },
-  { id:"R32_02", fase:"16avos", num:2, fechaISO:"2026-06-29T14:00:00-03:00" },
-  { id:"R32_03", fase:"16avos", num:3, fechaISO:"2026-06-29T18:00:00-03:00" },
-  { id:"R32_04", fase:"16avos", num:4, fechaISO:"2026-06-29T22:00:00-03:00" },
-  { id:"R32_05", fase:"16avos", num:5, fechaISO:"2026-06-30T14:00:00-03:00" },
-  { id:"R32_06", fase:"16avos", num:6, fechaISO:"2026-06-30T18:00:00-03:00" },
-  { id:"R32_07", fase:"16avos", num:7, fechaISO:"2026-06-30T22:00:00-03:00" },
-  { id:"R32_08", fase:"16avos", num:8, fechaISO:"2026-07-01T13:00:00-03:00" },
-  { id:"R32_09", fase:"16avos", num:9, fechaISO:"2026-07-01T17:00:00-03:00" },
-  { id:"R32_10", fase:"16avos", num:10, fechaISO:"2026-07-01T21:00:00-03:00" },
-  { id:"R32_11", fase:"16avos", num:11, fechaISO:"2026-07-02T16:00:00-03:00" },
-  { id:"R32_12", fase:"16avos", num:12, fechaISO:"2026-07-02T20:00:00-03:00" },
-  { id:"R32_13", fase:"16avos", num:13, fechaISO:"2026-07-02T22:00:00-03:00" },
-  { id:"R32_14", fase:"16avos", num:14, fechaISO:"2026-07-03T15:00:00-03:00" },
-  { id:"R32_15", fase:"16avos", num:15, fechaISO:"2026-07-03T19:00:00-03:00" },
-  { id:"R32_16", fase:"16avos", num:16, fechaISO:"2026-07-03T22:30:00-03:00" },
-  // OCTAVOS (Round of 16) — 4 al 7 Jul
-  { id:"R16_01", fase:"octavos", num:1, fechaISO:"2026-07-04T14:00:00-03:00" },
-  { id:"R16_02", fase:"octavos", num:2, fechaISO:"2026-07-04T18:00:00-03:00" },
-  { id:"R16_03", fase:"octavos", num:3, fechaISO:"2026-07-05T15:00:00-03:00" },
-  { id:"R16_04", fase:"octavos", num:4, fechaISO:"2026-07-05T21:00:00-03:00" },
-  { id:"R16_05", fase:"octavos", num:5, fechaISO:"2026-07-06T13:00:00-03:00" },
-  { id:"R16_06", fase:"octavos", num:6, fechaISO:"2026-07-06T17:00:00-03:00" },
-  { id:"R16_07", fase:"octavos", num:7, fechaISO:"2026-07-06T21:00:00-03:00" },
-  { id:"R16_08", fase:"octavos", num:8, fechaISO:"2026-07-07T17:00:00-03:00" },
-  // CUARTOS — 9 al 11 Jul
-  { id:"QF_01", fase:"cuartos", num:1, fechaISO:"2026-07-09T17:00:00-03:00" },
-  { id:"QF_02", fase:"cuartos", num:2, fechaISO:"2026-07-09T21:00:00-03:00" },
-  { id:"QF_03", fase:"cuartos", num:3, fechaISO:"2026-07-10T17:00:00-03:00" },
-  { id:"QF_04", fase:"cuartos", num:4, fechaISO:"2026-07-11T17:00:00-03:00" },
-  // SEMIS — 14 y 15 Jul
-  { id:"SF_01", fase:"semis", num:1, fechaISO:"2026-07-14T21:00:00-03:00" },
-  { id:"SF_02", fase:"semis", num:2, fechaISO:"2026-07-15T21:00:00-03:00" },
-  // 3ER PUESTO — 18 Jul
-  { id:"TP_01", fase:"tercero", num:1, fechaISO:"2026-07-18T17:00:00-03:00" },
-  // FINAL — 19 Jul
-  { id:"FN_01", fase:"final", num:1, fechaISO:"2026-07-19T16:00:00-03:00" },
+  {id:"R32_01",fase:"16avos",num:1,local:"Sudáfrica",visitante:"Canadá",fechaISO:"2026-06-28T16:00:00-03:00"},
+  {id:"R32_02",fase:"16avos",num:2,local:"Brasil",visitante:"Japón",fechaISO:"2026-06-29T14:00:00-03:00"},
+  {id:"R32_03",fase:"16avos",num:3,local:"Alemania",visitante:"Paraguay",fechaISO:"2026-06-29T17:30:00-03:00"},
+  {id:"R32_04",fase:"16avos",num:4,local:"Países Bajos",visitante:"Marruecos",fechaISO:"2026-06-29T22:00:00-03:00"},
+  {id:"R32_05",fase:"16avos",num:5,local:"Costa de Marfil",visitante:"Noruega",fechaISO:"2026-06-30T14:00:00-03:00"},
+  {id:"R32_06",fase:"16avos",num:6,local:"Francia",visitante:"Suecia",fechaISO:"2026-06-30T18:00:00-03:00"},
+  {id:"R32_07",fase:"16avos",num:7,local:"México",visitante:"Ecuador",fechaISO:"2026-06-30T22:00:00-03:00"},
+  {id:"R32_08",fase:"16avos",num:8,local:"Inglaterra",visitante:"RD Congo",fechaISO:"2026-07-01T13:00:00-03:00"},
+  {id:"R32_09",fase:"16avos",num:9,local:"Bélgica",visitante:"Senegal",fechaISO:"2026-07-01T17:00:00-03:00"},
+  {id:"R32_10",fase:"16avos",num:10,local:"EE.UU.",visitante:"Bosnia y Herzegovina",fechaISO:"2026-07-01T21:00:00-03:00"},
+  {id:"R32_11",fase:"16avos",num:11,local:"España",visitante:"",fechaISO:"2026-07-02T16:00:00-03:00"},
+  {id:"R32_12",fase:"16avos",num:12,local:"Portugal",visitante:"Croacia",fechaISO:"2026-07-02T20:00:00-03:00"},
+  {id:"R32_13",fase:"16avos",num:13,local:"Suiza",visitante:"",fechaISO:"2026-07-03T00:00:00-03:00"},
+  {id:"R32_14",fase:"16avos",num:14,local:"Australia",visitante:"Egipto",fechaISO:"2026-07-03T15:00:00-03:00"},
+  {id:"R32_15",fase:"16avos",num:15,local:"Argentina",visitante:"Cabo Verde",fechaISO:"2026-07-03T19:00:00-03:00"},
+  {id:"R32_16",fase:"16avos",num:16,local:"Colombia",visitante:"Ghana",fechaISO:"2026-07-03T22:30:00-03:00"},
+  {id:"R16_01",fase:"octavos",num:1,local:"",visitante:"",fechaISO:"2026-07-04T14:00:00-03:00"},
+  {id:"R16_02",fase:"octavos",num:2,local:"",visitante:"",fechaISO:"2026-07-04T18:00:00-03:00"},
+  {id:"R16_03",fase:"octavos",num:3,local:"",visitante:"",fechaISO:"2026-07-05T17:00:00-03:00"},
+  {id:"R16_04",fase:"octavos",num:4,local:"",visitante:"",fechaISO:"2026-07-05T21:00:00-03:00"},
+  {id:"R16_05",fase:"octavos",num:5,local:"",visitante:"",fechaISO:"2026-07-06T16:00:00-03:00"},
+  {id:"R16_06",fase:"octavos",num:6,local:"",visitante:"",fechaISO:"2026-07-06T21:00:00-03:00"},
+  {id:"R16_07",fase:"octavos",num:7,local:"",visitante:"",fechaISO:"2026-07-07T13:00:00-03:00"},
+  {id:"R16_08",fase:"octavos",num:8,local:"",visitante:"",fechaISO:"2026-07-07T17:00:00-03:00"},
+  {id:"QF_01",fase:"cuartos",num:1,local:"",visitante:"",fechaISO:"2026-07-09T17:00:00-03:00"},
+  {id:"QF_02",fase:"cuartos",num:2,local:"",visitante:"",fechaISO:"2026-07-09T21:00:00-03:00"},
+  {id:"QF_03",fase:"cuartos",num:3,local:"",visitante:"",fechaISO:"2026-07-10T16:00:00-03:00"},
+  {id:"QF_04",fase:"cuartos",num:4,local:"",visitante:"",fechaISO:"2026-07-11T18:00:00-03:00"},
+  {id:"SF_01",fase:"semis",num:1,local:"",visitante:"",fechaISO:"2026-07-14T16:00:00-03:00"},
+  {id:"SF_02",fase:"semis",num:2,local:"",visitante:"",fechaISO:"2026-07-15T16:00:00-03:00"},
+  {id:"TP_01",fase:"tercero",num:1,local:"",visitante:"",fechaISO:"2026-07-18T18:00:00-03:00"},
+  {id:"FN_01",fase:"final",num:1,local:"",visitante:"",fechaISO:"2026-07-19T16:00:00-03:00"},
 ];
+const FASES_LABELS={"16avos":"16avos de Final","octavos":"Octavos de Final","cuartos":"Cuartos de Final","semis":"Semifinales","tercero":"3er Puesto","final":"Final"};
+const FASES_ORDEN=["16avos","octavos","cuartos","semis","tercero","final"];
 
 const FASES_LABELS = {
   "16avos": "16avos de Final",
@@ -1039,7 +1035,11 @@ function verificarCierresAutomaticos() {
   const ahora = ahoraReal();
   FIXTURE_ELIM.forEach(async (p) => {
     const datos = elimPartidosCache[p.id];
-    if (!datos) return; // sin equipos = no existe aún
+    // Si no hay datos pero el partido tiene equipos hardcodeados, inicializar
+    if (!datos) {
+      if (!p.local && !p.visitante) return; // sin equipos = saltar
+      elimPartidosCache[p.id] = { cerrado: false };
+    }
     if (datos.cerrado) return; // ya cerrado
     const horaPartido = new Date(p.fechaISO);
     if (ahora >= horaPartido) {
@@ -1068,7 +1068,8 @@ function renderEliminatorias() {
   FIXTURE_ELIM.forEach(p => { fases[p.fase].push(p); });
 
   // Ver si hay algún partido disponible
-  const hayPartidos = FIXTURE_ELIM.some(p => elimPartidosCache[p.id]);
+  // Hay partidos si alguno tiene equipos (en fixture o en Firebase)
+  const hayPartidos = FIXTURE_ELIM.some(p => p.local || elimPartidosCache[p.id]);
   if (!hayPartidos) {
     cont.innerHTML = `<div class="elim-empty">
       <div class="icon">⏳</div>
@@ -1101,12 +1102,17 @@ function renderEliminatorias() {
       if (!datos) return;
 
       const cerrado = datos.cerrado || false;
-      const local = datos.local || null;
-      const visitante = datos.visitante || null;
+      // Usar equipos del fixture si están hardcodeados, sino los de Firebase
+      const local = p.local || datos.local || null;
+      const visitante = p.visitante || datos.visitante || null;
       const real = (datos.gl_real !== undefined && datos.gl_real !== null) ? { gl: datos.gl_real, gv: datos.gv_real } : null;
       const pred = elimPredsCache[p.id] || null;
       const pts = calcularPuntos(pred, real);
       const sinEquipos = !local && !visitante;
+      // Si no hay datos en Firebase aún para este partido, crear objeto vacío
+      if (!elimPartidosCache[p.id] && (p.local || p.visitante)) {
+        elimPartidosCache[p.id] = { cerrado: false };
+      }
       const delay = (fi * 4 + pidx) * 40;
 
       let cardClass = sinEquipos ? "sin-equipos" : cerrado ? "cerrado" : "abierto";
