@@ -99,6 +99,32 @@ input:focus{border-color:var(--verde);}
 
 #toast{position:fixed;bottom:20px;right:20px;background:var(--gris1);border:1px solid var(--verde);border-radius:8px;padding:12px 20px;font-family:'Barlow Condensed',sans-serif;font-weight:600;color:var(--verde);z-index:999;transform:translateY(60px);opacity:0;transition:all .3s;}
 #toast.show{transform:translateY(0);opacity:1;}
+
+/* ELIMINATORIAS ADMIN */
+.elim-admin-grid{display:grid;gap:10px;}
+.elim-admin-card{background:var(--gris1);border:1px solid var(--gris3);border-radius:10px;padding:16px 20px;}
+.elim-admin-card.cerrado{opacity:0.6;border-left:3px solid var(--gris3);}
+.elim-admin-card.abierto{border-left:3px solid var(--verde);}
+.elim-admin-card.sin-equipos{border-left:3px solid var(--gris4);opacity:0.5;}
+.elim-fase-title{font-family:'Bebas Neue',cursive;font-size:1.4rem;color:var(--verde);margin:24px 0 10px;letter-spacing:2px;}
+.elim-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
+.elim-card-label{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.9rem;color:var(--blanco);}
+.elim-card-estado{font-family:'Barlow Condensed',sans-serif;font-size:0.75rem;letter-spacing:1px;text-transform:uppercase;}
+.elim-card-estado.abierto{color:var(--verde);}
+.elim-card-estado.cerrado{color:var(--gris4);}
+.elim-equipos-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;}
+.elim-field{display:flex;flex-direction:column;gap:4px;flex:1;min-width:160px;}
+.elim-field label{font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;letter-spacing:1px;text-transform:uppercase;color:var(--gris4);}
+.elim-field input[type=text]{margin-bottom:0;font-size:0.9rem;padding:8px 12px;}
+.elim-resultado-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.elim-resultado-row label{font-family:'Barlow Condensed',sans-serif;font-size:0.75rem;letter-spacing:1px;text-transform:uppercase;color:var(--gris4);white-space:nowrap;}
+.elim-gol{width:50px;height:38px;background:var(--gris2);border:1px solid var(--gris3);border-radius:6px;color:var(--blanco);font-family:'Bebas Neue',cursive;font-size:1.2rem;text-align:center;outline:none;-moz-appearance:textfield;}
+.elim-gol::-webkit-outer-spin-button,.elim-gol::-webkit-inner-spin-button{-webkit-appearance:none;}
+.elim-gol:focus{border-color:var(--verde);}
+.elim-gol.ok{border-color:var(--verde);background:#1f0505;}
+.btn-guardar-elim-card{background:var(--verde);color:var(--negro);border:none;border-radius:6px;padding:7px 16px;font-family:'Bebas Neue',cursive;font-size:0.95rem;letter-spacing:1px;cursor:pointer;transition:background .2s;white-space:nowrap;}
+.btn-guardar-elim-card:hover{background:var(--verde2);}
+.elim-save-ok{color:var(--verde);font-family:'Barlow Condensed',sans-serif;font-size:0.8rem;margin-top:6px;}
 </style>
 </head>
 <body>
@@ -121,6 +147,7 @@ input:focus{border-color:var(--verde);}
     <button class="tab-btn" data-tab="usuarios">Usuarios</button>
     <button class="tab-btn" data-tab="exportar">📥 Exportar</button>
     <button class="tab-btn" data-tab="config">⚙ Config</button>
+    <button class="tab-btn" data-tab="eliminatorias">⚡ Eliminatorias</button>
   </div>
 
   <!-- TAB: RESULTADOS -->
@@ -187,7 +214,15 @@ input:focus{border-color:var(--verde);}
       </div>
       <div id="config-status" style="font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;color:var(--verde);margin-top:14px;"></div>
     </div>
+    <!-- TAB: ELIMINATORIAS -->
+  <div class="tab-panel" id="panel-eliminatorias">
+    <p style="font-family:'Barlow Condensed',sans-serif;color:var(--gris4);margin-bottom:20px;font-size:0.9rem;">
+      Cargá los equipos de cada cruce para habilitarlo. El cierre es automático al llegar la hora del partido.
+      También podés cargar el resultado real una vez jugado.
+    </p>
+    <div id="elim-admin-cont"><div style="color:var(--gris4)">Cargando...</div></div>
   </div>
+</div>
 </div>
 
 <div id="toast"></div>
@@ -197,6 +232,44 @@ const GRUPOS={A:["México","Corea del Sur","Sudáfrica","Rep. Checa"],B:["Canad�
 const BANDERAS={"México":"🇲🇽","Corea del Sur":"🇰🇷","Sudáfrica":"🇿🇦","Rep. Checa":"🇨🇿","Canadá":"🇨🇦","Suiza":"🇨🇭","Qatar":"🇶🇦","Bosnia y Herzegovina":"🇧🇦","Brasil":"🇧🇷","Marruecos":"🇲🇦","Escocia":"🏴󠁧󠁢󠁳󠁣󠁴󠁿","Haití":"🇭🇹","EE.UU.":"🇺🇸","Paraguay":"🇵🇾","Australia":"🇦🇺","Turquía":"🇹🇷","Alemania":"🇩🇪","Ecuador":"🇪🇨","Costa de Marfil":"🇨🇮","Curazao":"🇨🇼","Países Bajos":"🇳🇱","Japón":"🇯🇵","Túnez":"🇹🇳","Ucrania":"🇺🇦","Bélgica":"🇧🇪","Irán":"🇮🇷","Egipto":"🇪🇬","Nueva Zelanda":"🇳🇿","España":"🇪🇸","Uruguay":"🇺🇾","Arabia Saudí":"🇸🇦","Cabo Verde":"🇨🇻","Francia":"🇫🇷","Senegal":"🇸🇳","Noruega":"🇳🇴","Irak":"🇮🇶","Argentina":"🇦🇷","Austria":"🇦🇹","Argelia":"🇩🇿","Jordania":"🇯🇴","Portugal":"🇵🇹","Colombia":"🇨🇴","Uzbekistán":"🇺🇿","RD Congo":"🇨🇩","Inglaterra":"🏴󠁧󠁢󠁥󠁮󠁧󠁿","Croacia":"🇭🇷","Panamá":"🇵🇦","Ghana":"🇬🇭"};
 function genFixture(){const f=[];for(const[g,eq]of Object.entries(GRUPOS)){const p=[[0,1],[2,3],[0,2],[1,3],[0,3],[1,2]],fe=[1,1,2,2,3,3];p.forEach(([i,j],idx)=>f.push({id:`${g}${idx+1}`,grupo:g,fecha:fe[idx],local:eq[i],visitante:eq[j]}));}return f;}
 const FIXTURE=genFixture();
+
+const FIXTURE_ELIM = [
+  {id:"R32_01",fase:"16avos",num:1,fechaISO:"2026-06-28T16:00:00-03:00"},
+  {id:"R32_02",fase:"16avos",num:2,fechaISO:"2026-06-29T14:00:00-03:00"},
+  {id:"R32_03",fase:"16avos",num:3,fechaISO:"2026-06-29T18:00:00-03:00"},
+  {id:"R32_04",fase:"16avos",num:4,fechaISO:"2026-06-29T22:00:00-03:00"},
+  {id:"R32_05",fase:"16avos",num:5,fechaISO:"2026-06-30T14:00:00-03:00"},
+  {id:"R32_06",fase:"16avos",num:6,fechaISO:"2026-06-30T18:00:00-03:00"},
+  {id:"R32_07",fase:"16avos",num:7,fechaISO:"2026-06-30T22:00:00-03:00"},
+  {id:"R32_08",fase:"16avos",num:8,fechaISO:"2026-07-01T13:00:00-03:00"},
+  {id:"R32_09",fase:"16avos",num:9,fechaISO:"2026-07-01T17:00:00-03:00"},
+  {id:"R32_10",fase:"16avos",num:10,fechaISO:"2026-07-01T21:00:00-03:00"},
+  {id:"R32_11",fase:"16avos",num:11,fechaISO:"2026-07-02T16:00:00-03:00"},
+  {id:"R32_12",fase:"16avos",num:12,fechaISO:"2026-07-02T20:00:00-03:00"},
+  {id:"R32_13",fase:"16avos",num:13,fechaISO:"2026-07-02T22:00:00-03:00"},
+  {id:"R32_14",fase:"16avos",num:14,fechaISO:"2026-07-03T15:00:00-03:00"},
+  {id:"R32_15",fase:"16avos",num:15,fechaISO:"2026-07-03T19:00:00-03:00"},
+  {id:"R32_16",fase:"16avos",num:16,fechaISO:"2026-07-03T22:30:00-03:00"},
+  {id:"R16_01",fase:"octavos",num:1,fechaISO:"2026-07-04T14:00:00-03:00"},
+  {id:"R16_02",fase:"octavos",num:2,fechaISO:"2026-07-04T18:00:00-03:00"},
+  {id:"R16_03",fase:"octavos",num:3,fechaISO:"2026-07-05T15:00:00-03:00"},
+  {id:"R16_04",fase:"octavos",num:4,fechaISO:"2026-07-05T21:00:00-03:00"},
+  {id:"R16_05",fase:"octavos",num:5,fechaISO:"2026-07-06T13:00:00-03:00"},
+  {id:"R16_06",fase:"octavos",num:6,fechaISO:"2026-07-06T17:00:00-03:00"},
+  {id:"R16_07",fase:"octavos",num:7,fechaISO:"2026-07-06T21:00:00-03:00"},
+  {id:"R16_08",fase:"octavos",num:8,fechaISO:"2026-07-07T17:00:00-03:00"},
+  {id:"QF_01",fase:"cuartos",num:1,fechaISO:"2026-07-09T17:00:00-03:00"},
+  {id:"QF_02",fase:"cuartos",num:2,fechaISO:"2026-07-09T21:00:00-03:00"},
+  {id:"QF_03",fase:"cuartos",num:3,fechaISO:"2026-07-10T17:00:00-03:00"},
+  {id:"QF_04",fase:"cuartos",num:4,fechaISO:"2026-07-11T17:00:00-03:00"},
+  {id:"SF_01",fase:"semis",num:1,fechaISO:"2026-07-14T21:00:00-03:00"},
+  {id:"SF_02",fase:"semis",num:2,fechaISO:"2026-07-15T21:00:00-03:00"},
+  {id:"TP_01",fase:"tercero",num:1,fechaISO:"2026-07-18T17:00:00-03:00"},
+  {id:"FN_01",fase:"final",num:1,fechaISO:"2026-07-19T16:00:00-03:00"},
+];
+const FASES_LABELS={"16avos":"16avos de Final","octavos":"Octavos de Final","cuartos":"Cuartos de Final","semis":"Semifinales","tercero":"3er Puesto","final":"Final"};
+const FASES_ORDEN=["16avos","octavos","cuartos","semis","tercero","final"];
+
 function calcPts(pred,real){if(!real||real.gl===null||real.gv===null)return null;if(!pred||pred.gl===null||pred.gv===null)return 0;if(pred.gl===real.gl&&pred.gv===real.gv)return 5;const s=v=>v>0?1:v<0?-1:0;if(s(pred.gl-pred.gv)===s(real.gl-real.gv))return 3;return 0;}
 </script>
 
@@ -237,6 +310,7 @@ document.getElementById("btn-admin-login").addEventListener("click", () => {
 });
 
 async function iniciarAdmin() {
+  await cargarEliminatorias();
   await cargarResultados();
   renderGridResultados();
   await cargarUsuarios();
@@ -476,6 +550,118 @@ window.toggleUser = async (uid, activo) => {
 };
 
 // ---- TABS ----
+
+// ---- ELIMINATORIAS ADMIN ----
+let elimCache = {}; // datos actuales de cada partido
+
+async function cargarEliminatorias() {
+  const {collection, getDocs} = window._fb;
+  try {
+    const snap = await getDocs(collection(window._db, "elim_partidos"));
+    snap.forEach(d => { elimCache[d.id] = d.data(); });
+  } catch(e) { console.error(e); }
+}
+
+function renderEliminatorias() {
+  const cont = document.getElementById("elim-admin-cont");
+  let html = "";
+  const faseActual = {};
+  FASES_ORDEN.forEach(f => { faseActual[f] = []; });
+  FIXTURE_ELIM.forEach(p => { faseActual[p.fase].push(p); });
+
+  FASES_ORDEN.forEach(fase => {
+    const partidos = faseActual[fase];
+    html += `<div class="elim-fase-title">${FASES_LABELS[fase]}</div><div class="elim-admin-grid">`;
+    partidos.forEach(p => {
+      const datos = elimCache[p.id] || {};
+      const cerrado = datos.cerrado || false;
+      const local = datos.local || "";
+      const visitante = datos.visitante || "";
+      const glReal = datos.gl_real !== undefined && datos.gl_real !== null ? datos.gl_real : "";
+      const gvReal = datos.gv_real !== undefined && datos.gv_real !== null ? datos.gv_real : "";
+      const tieneEquipos = local || visitante;
+      const cardClass = !tieneEquipos ? "sin-equipos" : cerrado ? "cerrado" : "abierto";
+      const estadoTxt = !tieneEquipos ? "Sin equipos" : cerrado ? "🔒 Cerrado" : "🟢 Abierto";
+      const estadoClass = cerrado || !tieneEquipos ? "cerrado" : "abierto";
+      const horaPartido = new Date(p.fechaISO);
+      const horaStr = horaPartido.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit'}) + 
+                      ' ' + horaPartido.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}) + 'hs ARG';
+
+      html += `<div class="elim-admin-card ${cardClass}" id="card-${p.id}">
+        <div class="elim-card-header">
+          <span class="elim-card-label">Partido ${p.num} · ${horaStr}</span>
+          <span class="elim-card-estado ${estadoClass}">${estadoTxt}</span>
+        </div>
+        <div class="elim-equipos-row">
+          <div class="elim-field">
+            <label>Local</label>
+            <input type="text" id="local-${p.id}" value="${local}" placeholder="Equipo local" ${cerrado?'readonly':''}>
+          </div>
+          <div class="elim-field">
+            <label>Visitante</label>
+            <input type="text" id="vis-${p.id}" value="${visitante}" placeholder="Equipo visitante" ${cerrado?'readonly':''}>
+          </div>
+        </div>
+        <div class="elim-resultado-row">
+          <label>Resultado real:</label>
+          <input type="number" class="elim-gol ${glReal!==''?'ok':''}" id="gl-${p.id}" 
+            value="${glReal}" placeholder="–" min="0" max="20">
+          <span style="font-family:'Bebas Neue',cursive;color:var(--gris4)">:</span>
+          <input type="number" class="elim-gol ${gvReal!==''?'ok':''}" id="gv-${p.id}" 
+            value="${gvReal}" placeholder="–" min="0" max="20">
+          <button class="btn-guardar-elim-card" onclick="guardarPartidoElim('${p.id}')">GUARDAR</button>
+        </div>
+        <div id="status-${p.id}" class="elim-save-ok" style="display:none">✓ Guardado</div>
+      </div>`;
+    });
+    html += "</div>";
+  });
+  cont.innerHTML = html;
+
+  // Listeners para marcar ok en goles
+  FIXTURE_ELIM.forEach(p => {
+    ['gl','gv'].forEach(lado => {
+      const inp = document.getElementById(`${lado}-${p.id}`);
+      if (inp) inp.addEventListener('input', () => {
+        inp.classList.toggle('ok', inp.value !== '');
+      });
+    });
+  });
+}
+
+window.guardarPartidoElim = async (pid) => {
+  const {doc, setDoc} = window._fb;
+  const local = document.getElementById(`local-${pid}`).value.trim();
+  const visitante = document.getElementById(`vis-${pid}`).value.trim();
+  const glVal = document.getElementById(`gl-${pid}`).value;
+  const gvVal = document.getElementById(`gv-${pid}`).value;
+  const gl_real = glVal !== "" ? parseInt(glVal) : null;
+  const gv_real = gvVal !== "" ? parseInt(gvVal) : null;
+
+  // Mantener estado cerrado si ya existe
+  const existing = elimCache[pid] || {};
+  const cerrado = existing.cerrado || false;
+
+  const datos = { local, visitante, gl_real, gv_real, cerrado };
+  try {
+    await setDoc(doc(window._db, "elim_partidos", pid), datos);
+    elimCache[pid] = datos;
+    const st = document.getElementById(`status-${pid}`);
+    st.style.display = "block";
+    setTimeout(() => { st.style.display = "none"; }, 2000);
+    toast(`✓ Partido ${pid} guardado`);
+    // Actualizar estado visual de la card
+    const card = document.getElementById(`card-${pid}`);
+    if (card) {
+      card.classList.remove("sin-equipos","abierto","cerrado");
+      card.classList.add(cerrado ? "cerrado" : (local||visitante) ? "abierto" : "sin-equipos");
+    }
+  } catch(e) {
+    toast("✗ Error al guardar");
+    console.error(e);
+  }
+};
+
 document.querySelectorAll(".tab-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
@@ -485,6 +671,7 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
     if(btn.dataset.tab === "usuarios") cargarUsuarios();
     if(btn.dataset.tab === "config") cargarEstadoPredicciones();
     if(btn.dataset.tab === "exportar") { cargarResultados().then(() => cargarStatsExport()); }
+    if(btn.dataset.tab === "eliminatorias") { cargarEliminatorias().then(() => renderEliminatorias()); }
   });
 });
 </script>
