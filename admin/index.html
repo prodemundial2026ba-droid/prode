@@ -220,15 +220,13 @@ input:focus{border-color:var(--verde);}
       </div>
       <div id="config-status" style="font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;color:var(--verde);margin-top:14px;"></div>
     </div>
-    <!-- TAB: ELIMINATORIAS -->
+  </div>
+
+  <!-- TAB: ELIMINATORIAS -->
   <div class="tab-panel" id="panel-eliminatorias">
-    <p style="font-family:'Barlow Condensed',sans-serif;color:var(--gris4);margin-bottom:20px;font-size:0.9rem;">
-      Cargá los equipos de cada cruce para habilitarlo. El cierre es automático al llegar la hora del partido.
-      También podés cargar el resultado real una vez jugado.
-    </p>
     <div id="elim-admin-cont"><div style="color:var(--gris4)">Cargando...</div></div>
   </div>
-</div>
+
 </div>
 
 <div id="toast"></div>
@@ -623,7 +621,7 @@ window.renderEliminatorias = function renderEliminatorias() {
 
       html += `<div class="elim-admin-card ${cardClass}" id="card-${p.id}">
         <div class="elim-card-header">
-          <span class="elim-card-label">${FASES_LABELS[fase]} · P${p.num}</span>
+          <span class="elim-card-label">${_FASES_LABELS[fase]} · P${p.num}</span>
           <div style="display:flex;align-items:center;gap:8px;">
             <span class="elim-card-estado ${estadoClass}">${estadoTxt}</span>
             ${cerrado ? `<button class="btn-reset-elim" onclick="reabrirPartido('${p.id}')">🔓 Reabrir</button>` : ''}
